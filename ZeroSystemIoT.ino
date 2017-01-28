@@ -16,32 +16,32 @@ void temp_humid(){
   switch (chk)
   {
     case DHTLIB_OK:  
-                Serial.print("OK,\t"); 
+                Serial.print("OK,"); 
                 break;
     case DHTLIB_ERROR_CHECKSUM: 
-                Serial.print("Checksum error,\t"); 
+                Serial.print("Checksum error,"); 
                 break;
     case DHTLIB_ERROR_TIMEOUT: 
-                Serial.print("Time out error,\t"); 
+                Serial.print("Time out error,"); 
                 break;
     default: 
-                Serial.print("Unknown error,\t"); 
+                Serial.print("Unknown error,"); 
                 break;
   }
   // DISPLAY DATA, Humidity -- Temperature
   Serial.print(DHT.humidity, 1);
-  Serial.print(" , ");
+  Serial.print(",");
   Serial.println(DHT.temperature, 1);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   if (Serial.available() > 0 ) {
-    int command = Serial.parseInt();
-      if (command == 1) {
+    char command = (char)Serial.read();
+      if (command == '1') {
         //Start
         start = 1;
-      } else if (command == 0) {
+      } else if (command == '0') {
         //Stopped
         start = 0;
         Serial.println("Zero System Stopped");

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body onload="update()">
+  <div id="rawdata">
+    Testing : 
+  </div>
+  <div id="temperature">
+    Temp : 
+  </div>
+  <div id="humidity">
+    0
+  </div>
+  <div>
+    <a href="#" onclick="stopSerial()"> Stop</a>
+  </div>
+</body>
+<script src="js/data.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/jquery.js"></script>
+</html>
