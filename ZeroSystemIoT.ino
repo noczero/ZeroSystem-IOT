@@ -1,7 +1,9 @@
 #include <dht.h>
 dht DHT;
 int start = 0;
+int humid = 0;
 #define DHT11_PIN 2
+#define MoisturePIN A0
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,7 +33,13 @@ void temp_humid(){
   // DISPLAY DATA, Humidity -- Temperature
   Serial.print(DHT.humidity, 1);
   Serial.print(",");
-  Serial.println(DHT.temperature, 1);
+  Serial.print(DHT.temperature, 1);
+}
+
+void moisture(int pinA0){
+ humid = analogRead(pinA0);
+  Serial.print(",");
+  Serial.print(1023 - humid); 
 }
 
 void loop() {
@@ -51,6 +59,8 @@ void loop() {
   
   if (start == 1){
     temp_humid();
+    moisture(MoisturePIN);
+    Serial.println();
   }
   
   delay(2000);

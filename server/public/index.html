@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Document</title>
   <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="css/custom.css">
 </head>
 <body onload="update()">
   <nav class="navbar navbar-default">
@@ -18,6 +21,9 @@
     </div>
   </nav>
   <div class="container">
+    <div id="watering">
+      
+    </div>
     <table class="table">
       <caption>RAW Data</caption>
       <thead>
@@ -25,6 +31,7 @@
           <th>header</th>
           <th>Humidity</th>
           <th>Temperature</th>
+          <th>Moisture</th>
         </tr>
       </thead>
       <tbody>
@@ -32,17 +39,50 @@
           <td id="rawdata">data</td>
           <td id="humidity">data</td>
           <td id="temperature">data</td>
+          <td id="moisture">data</td>
         </tr>
       </tbody>
     </table>
     
     <div>
+      <a href="#" onclick="startAgain()" class="btn btn-info">Start</a>
       <a href="#" onclick="stopSerial() " class="btn btn-primary"> Stop</a>
     </div>
-
+    <br>
     <div id="zeroGraph" style="width:100%;height:300px">
-    <div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-4 watering">
+      <caption> Soil Status : </caption>
+        <div class="progress">
+          <div id="maudisiram" class="progress-bar progress-bar-success" role="progressbar" 
+  aria-valuemin="0" aria-valuenow="0" aria-valuemax="100" >
+    0 % Dry 
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        
+      </div>
+    </div>
+
   </div>
+
+    <footer class="footer">
+      <div class="container">
+
+        <div class="col-md-6 col-sm-2 col-xs-2">
+          <span class="text-muted"> Zero-Inside </span>
+        </div>
+        <div class="col-md-6 col-sm-10 col-xs-10" align="right">
+            <span class="glyphicon glyphicon-time"></span>
+        <small id="localtime"></small>
+        </div>
+      
+      </div>
+    </footer>
+
 </body>
 <script src="js/jquery.js"></script>
 
@@ -50,5 +90,13 @@
 <script src="plugins/flot/jquery.flot.js"></script>
 <script src="js/data.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="js/moment.js"></script>
+<script src="js/notify.js"></script>
 
+<script>
+  function clock(){
+    document.getElementById("localtime").innerHTML = moment().format('MMMM Do YYYY, h:mm:ss a');
+  }
+  setInterval(clock, 1000);
+</script>
 </html>

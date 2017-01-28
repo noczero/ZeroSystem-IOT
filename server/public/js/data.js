@@ -1,5 +1,8 @@
-var humid = 0;
-var temp = 0;
+var humid = 0,
+    temp = 0,
+    moisture = 0;
+
+var muncul = 0;
 function update() {
   var socket = io.connect();
 
@@ -7,11 +10,24 @@ function update() {
      var Header = data.datahasil[0];
          humid = parseInt(data.datahasil[1]);
          temp = parseInt(data.datahasil[2]);
+         moisture = parseInt(data.datahasil[3]);
 
       console.log(data.datahasil);
     $("#rawdata").html(Header);
     $("#temperature").html(temp);
     $("#humidity").html(humid);
+    $("#moisture").html(moisture);
+
+    var percentSiram = (moisture / 1023) * 100;
+    $("#maudisiram").css('width', percentSiram+'%').attr('aria-valuenow', percentSiram).html(parseInt(percentSiram) + " % Dry"); 
+
+    if (parseInt(percentSiram) > 0 && parseInt(percentSiram) < 10 ){
+        muncul = 1;
+       // alertDiv();
+       $.notify("Need Water!, do watering....", "success");
+    } else {
+      muncul = 0;
+    }
     
      //Push new value to Flot Plot
         HumidRes.push([totalPoints, humid]);
@@ -25,6 +41,24 @@ function update() {
           TempRes[i][0]=i;
         }
   });
+}
+
+function alertDiv(){
+  if (muncul == 1) {
+   var newNode = document.createElement('div');
+        newNode.className = 'alert alert-success';
+        newNode.innerHTML = '<strong> Success! </strong>, Watering..';
+        setTimeout(function()
+         {
+           newNode.parentNode.removeChild(newNode);
+         },2000);
+        var sekali = 1;
+        if (sekali == 1) {
+          document.getElementById('watering').appendChild(newNode);
+          sekali = 0;
+        }
+        muncul = 0;  
+  }
 }
 
 function stopSerial(){
@@ -83,3 +117,8 @@ function updategraph() {
 }
 
 updategraph();
+
+function watering(){
+  var socket = io.socket();
+  socket.emit('water',2);
+}

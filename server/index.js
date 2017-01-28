@@ -1,6 +1,7 @@
 var SerialPort = require('serialport');
 var express = require('express');
 var app = express();
+var php = require('php-node');
 var path = require('path');
 require('events').EventEmitter.defaultMaxListeners = Infinity;
 var server = require('http').createServer(app);
@@ -40,10 +41,10 @@ zeroPort.on('open', function() {
     jumlahClient++;
     console.log('Number of Client : ' + jumlahClient);
     zeroPort.on('data', function(data) {
-
         var RAWData = data.toString();
         RAWData = RAWData.replace(/(\r\n|\n|\r)/gm,"");
         var datahasil = RAWData.split(',');
+
         if (datahasil[0] == "OK" ) {
           socket.broadcast.emit('kirim', {datahasil:datahasil});
         }
