@@ -119,6 +119,11 @@ function updategraph() {
 updategraph();
 
 function watering(){
-  var socket = io.socket();
+  var socket = io.connect();
   socket.emit('water',2);
+}
+
+function startAgain(){
+  var socket = io.connect();
+  socket.emit('startAgain',1);
 }

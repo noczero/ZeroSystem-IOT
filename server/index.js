@@ -13,7 +13,7 @@ var portName = process.argv[2];
 var zeroPort = new SerialPort(
   portName,
   {
-    baudRate : 9600,
+    baudRate : 115200,
     databits : 8,
     parity : 'none',
     parser : SerialPort.parsers.readline('\r\n')
@@ -59,6 +59,10 @@ zeroPort.on('open', function() {
 
     socket.on('stop' , function(data) {
         zeroPort.write('0');
+    });
+
+    socket.on('startAgain', function(data){
+      zeroPort.write('1');
     });
   });
 });
