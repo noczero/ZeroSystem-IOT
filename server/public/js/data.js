@@ -1,29 +1,45 @@
 var humid = 0,
     temp = 0,
-    moisture = 0;
+    moisture = 0,
+    percentSiram = 0,
+    accX = 0,
+    accY = 0,
+    accZ = 0,
+    smoke = 0,
+    pir = 0;
 
 var muncul = 0;
+
 function update() {
   var socket = io.connect();
 
   socket.on('kirim', function(data){
      var Header = data.datahasil[0];
-         humid = parseInt(data.datahasil[1]);
-         temp = parseInt(data.datahasil[2]);
-         moisture = parseInt(data.datahasil[3]);
+     humid = parseInt(data.datahasil[1]);
+     temp = parseInt(data.datahasil[2]);
+     moisture = parseInt(data.datahasil[3]);
+     accX = parseInt(data.datahasil[4]);
+     accY = parseInt(data.datahasil[5]);
+     accZ = parseInt(data.datahasil[6]);
+     smoke = parseInt(data.datahasil[7]);
+     pir = parseInt(data.datahasil[8]);
 
-      console.log(data.datahasil);
+    console.log(data.datahasil);
     $("#rawdata").html(Header);
-    $("#temperature").html(temp);
-    $("#humidity").html(humid);
+    $("#temperature").html(temp + '°C');
+    $("#humidity").html(humid + '%');
     $("#moisture").html(moisture);
+    $("#accX").html(accX);
+    $("#accY").html(accY);
+    $("#accZ").html(accZ);
+    $("#smoke").html(smoke);
+    $("#motion").html(pir);
 
-    var percentSiram = (moisture / 1023) * 100;
-    $("#maudisiram").css('width', percentSiram+'%').attr('aria-valuenow', percentSiram).html(parseInt(percentSiram) + " % Dry"); 
-
-    if (parseInt(percentSiram) > 0 && parseInt(percentSiram) < 10 ){
+   percentSiram = (moisture / 1023) * 100;
+    $("#maudisiram").css('width', percentSiram+'%').attr('aria-valuenow', percentSiram).html(parseInt(percentSiram) + " % Wet"); 
+    
+     if (parseInt(percentSiram) > 0 && parseInt(percentSiram) < 20 ){
         muncul = 1;
-       // alertDiv();
        $.notify("Need Water!, do watering....", "success");
     } else {
       muncul = 0;
@@ -41,6 +57,9 @@ function update() {
           TempRes[i][0]=i;
         }
   });
+
+
+
 }
 
 function alertDiv(){
@@ -120,10 +139,15 @@ updategraph();
 
 function watering(){
   var socket = io.connect();
-  socket.emit('water',2);
+  socket.emit('water',3);
 }
 
 function startAgain(){
   var socket = io.connect();
   socket.emit('startAgain',1);
+}
+
+function LedON(){
+  var socket = io.connect();
+  socket.emit('LedON', 2);
 }

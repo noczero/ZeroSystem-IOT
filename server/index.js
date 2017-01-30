@@ -37,7 +37,7 @@ zeroPort.on('open', function() {
     });
   }, delayMillis);
 
-  io.sockets.on('connection' , function(socket){
+io.on('connection' , function(socket){
     jumlahClient++;
     console.log('Number of Client : ' + jumlahClient);
     zeroPort.on('data', function(data) {
@@ -46,7 +46,7 @@ zeroPort.on('open', function() {
         var datahasil = RAWData.split(',');
 
         if (datahasil[0] == "OK" ) {
-          socket.broadcast.emit('kirim', {datahasil:datahasil});
+          socket.emit('kirim', {datahasil:datahasil});
         }
       });
 
@@ -63,6 +63,14 @@ zeroPort.on('open', function() {
 
     socket.on('startAgain', function(data){
       zeroPort.write('1');
+    });
+
+    socket.on('LedON' , function(data){
+      zeroPort.write('2');
+    });
+
+    socket.on('water', function(data){
+      zeroPort.write('3');
     });
   });
 });
