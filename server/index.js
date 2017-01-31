@@ -21,6 +21,7 @@ var zeroPort = new SerialPort(
 var jumlahClient = 0;
 var dcClient = 0;
 var datahasil = "";
+  var hidup = false;
 
 zeroPort.on('open', function() {
   console.log('ZeroSystem-IoT Started');
@@ -48,6 +49,8 @@ io.on('connection' , function(socket){
         if (datahasil[0] == "OK" ) {
           socket.emit('kirim', {datahasil:datahasil});
         }
+        socket.emit('button', hidup );
+
       });
 
     socket.on('disconnect' , function() {
@@ -64,13 +67,19 @@ io.on('connection' , function(socket){
     socket.on('startAgain', function(data){
       zeroPort.write('1');
     });
-
+  
     socket.on('LedON' , function(data){
       zeroPort.write('2');
+      hidup = true;
+    });
+
+    socket.on('LedOff', function(data){
+      zeroPort.write('3');
+      hidup = false;
     });
 
     socket.on('water', function(data){
-      zeroPort.write('3');
+      zeroPort.write('4');
     });
   });
 });

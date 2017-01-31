@@ -9,11 +9,12 @@ var humid = 0,
     pir = 0;
 
 var muncul = 0;
+var LEDhidup;
 
 function update() {
   var socket = io.connect();
-
   socket.on('kirim', function(data){
+
      var Header = data.datahasil[0];
      humid = parseInt(data.datahasil[1]);
      temp = parseInt(data.datahasil[2]);
@@ -56,9 +57,23 @@ function update() {
           HumidRes[i][0]=i;
           TempRes[i][0]=i;
         }
+
+
+
   });
 
-
+  socket.on('button', function(data) {
+    LEDhidup = data;
+    if (data){
+            $("#LED").html("LED ON");
+    document.getElementById("LED").className = "btn btn-info";
+    document.getElementById("stats").innerHTML = "LED ON";
+        } else {
+              $("#LED").html("LED OFF");
+    document.getElementById("LED").className = "btn btn-default";
+    document.getElementById("stats").innerHTML = "LED OFF";
+        }
+  });
 
 }
 
@@ -139,7 +154,7 @@ updategraph();
 
 function watering(){
   var socket = io.connect();
-  socket.emit('water',3);
+  socket.emit('water',4);
 }
 
 function startAgain(){
@@ -147,7 +162,22 @@ function startAgain(){
   socket.emit('startAgain',1);
 }
 
+
 function LedON(){
   var socket = io.connect();
-  socket.emit('LedON', 2);
+
+  if (!LEDhidup) {
+    $("#LED").html("LED ON");
+    document.getElementById("LED").className = "btn btn-info";
+    document.getElementById("stats").innerHTML = "LED ON";
+    socket.emit('LedON', 2);  
+    LEDhidup = true;
+  } else {
+    $("#LED").html("LED OFF");
+    document.getElementById("LED").className = "btn btn-default";
+    document.getElementById("stats").innerHTML = "LED OFF";
+    socket.emit('LedOff', 3);  
+    LEDhidup = false;
+  }  
+  console.log(LEDhidup);
 }

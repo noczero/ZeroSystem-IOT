@@ -47,15 +47,21 @@
 Command Button :</h5>
             </div>
             <div class="text-right col-md-6 col-xs-6">
-                <a href="#" onclick="startAgain()" class="btn btn-info">Start</a>
-                <a href="#" onclick="stopSerial() " class="btn btn-primary"> Stop</a>
+                <a onclick="startAgain()" class="btn btn-info">Start</a>
+                <a onclick="stopSerial() " class="btn btn-primary"> Stop</a>
             </div>
         </div>
         <div class="row">
-            <div>
-                <a href="#" onclick="LedON() " class="btn btn-default"> LED ON</a>
-                <a href="#" onclick="watering() " class="btn btn-default"> Watering </a>
+            <div class="col-md-6">
+                <a id="LED" onclick="LedON() " class="btn btn-default"> LED OFF</a>
+                <a  onclick="watering() " class="btn btn-default"> Watering </a>
             </div>
+        </div>
+        <div >
+            <small> Stats : 
+                <small id="stats">LED OFF</small>
+                <small id="statsWater">Watering OFF</small>
+            </small>    
         </div>
         <hr>
         <h5> <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i> Parameter Data</h5>

@@ -42,7 +42,10 @@ void setup() {
 
 void turnOnLED(int x){
   digitalWrite(x , HIGH);
-  delay(1000);
+
+}
+
+void turnOffLED(int x) {
   digitalWrite(x , LOW);
 }
 
@@ -147,6 +150,9 @@ void loop() {
      } else if (command == '2'){
       turnOnLED(LED);
       Serial.println("LED ON");
+     } else if (command = '3'){
+      turnOffLED(LED);
+      Serial.println("LED OFF");
      }
   }
   
@@ -160,7 +166,7 @@ void loop() {
   }
 
 
-  delay(2000);
+  delay(1000);
   
 }
 
