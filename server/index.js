@@ -10,6 +10,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 var portNumber = 3030;
 server.listen(portNumber);
 var portName = process.argv[2];
+
+var mysql = require('mysql');
+var zeroDB = mysql.createConnection({
+  host : 'localhost',
+  user : 'root',
+  password : '',
+  database : 'zeroWeather'
+});
+
+zeroDB.connect(function(err) {
+  if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+
+  console.log('Success, Database connected... \n connected as id ' + zeroDB.threadId);
+  
+});
+var datahasil , RAWData;
 var zeroPort = new SerialPort(
   portName,
   {
@@ -20,13 +39,23 @@ var zeroPort = new SerialPort(
   });
 var jumlahClient = 0;
 var dcClient = 0;
-var datahasil = "";
-  var hidup = false;
+var hidup = false;
+
+function insertHumid(data){
+  zeroDB.query('INSERT INTO humidity SET humid=? ' , data ,function(err, result) { 
+    if(err){
+      console.log(err);
+    } else {
+      console.log('Success : Data berhasil diinput');
+    }
+  });
+}
 
 zeroPort.on('open', function() {
   console.log('ZeroSystem-IoT Started');
   console.log('======================');
   console.log('Port Open, Server on port ' + portNumber);
+
   var delayMillis = 3000; //3 second
   setTimeout(function() {
     //your code to be executed after 3 second
@@ -38,48 +67,64 @@ zeroPort.on('open', function() {
     });
   }, delayMillis);
 
-io.on('connection' , function(socket){
-    jumlahClient++;
-    console.log('Number of Client : ' + jumlahClient);
-    zeroPort.on('data', function(data) {
-        var RAWData = data.toString();
-        RAWData = RAWData.replace(/(\r\n|\n|\r)/gm,"");
-        var datahasil = RAWData.split(',');
+  //getData
+  var temp ; 
+  zeroDB.query('SELECT * FROM humidity' , function (error, results, fields) {
+            temp = results;
+          });
+  
+  setInterval(function(){insertHumid(datahasil[1])}, 1200000);
 
-        if (datahasil[0] == "OK" ) {
-          socket.emit('kirim', {datahasil:datahasil});
-        }
-        socket.emit('button', hidup );
 
+  io.on('connection' , function(socket){
+      jumlahClient++;
+      console.log('Number of Client : ' + jumlahClient);
+      zeroPort.on('data', function(data) {
+         RAWData = data.toString();
+          RAWData = RAWData.replace(/(\r\n|\n|\r)/gm,"");
+          datahasil = RAWData.split(',');
+          //insertHumid(datahasil[1]);
+          if (datahasil[0] == "OK" ) {
+            socket.emit('kirim', {datahasil:datahasil});
+          }
+          socket.emit('button', hidup );
+          socket.emit('tempDB',  temp);
+
+       
+
+        });
+         
+
+      socket.on('disconnect' , function() {
+          dcClient++;
+          console.log('1 client disconnected , Total : ' + dcClient);
+          jumlahClient--;
+          console.log('Number of Client : ' + jumlahClient);
       });
 
-    socket.on('disconnect' , function() {
-        dcClient++;
-        console.log('1 client disconnected , Total : ' + dcClient);
-        jumlahClient--;
-        console.log('Number of Client : ' + jumlahClient);
-    });
+      socket.on('stop' , function(data) {
+          zeroPort.write('0');
+      });
 
-    socket.on('stop' , function(data) {
-        zeroPort.write('0');
-    });
+      socket.on('startAgain', function(data){
+        zeroPort.write('1');
+      });
+    
+      socket.on('LedON' , function(data){
+        zeroPort.write('2');
+        hidup = true;
+      });
 
-    socket.on('startAgain', function(data){
-      zeroPort.write('1');
-    });
-  
-    socket.on('LedON' , function(data){
-      zeroPort.write('2');
-      hidup = true;
-    });
+      socket.on('LedOff', function(data){
+        zeroPort.write('3');
+        hidup = false;
+      });
 
-    socket.on('LedOff', function(data){
-      zeroPort.write('3');
-      hidup = false;
-    });
+      socket.on('water', function(data){
+        zeroPort.write('4');
+      });
 
-    socket.on('water', function(data){
-      zeroPort.write('4');
+
+
     });
-  });
 });

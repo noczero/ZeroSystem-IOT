@@ -70,7 +70,32 @@ function update() {
         }
     });
 
+    socket.on('tempDB', function(data){
+        console.log(data[0].id);
+        console.log(data[0].humid);
+        console.log(data[0].waktu);
+        paramSensor.setHumid(data[0].humid);
+        console.log(paramSensor.getHumid());
+        // console.log(data.id);
+        // console.log(data.humid);
+        // console.log(data.waktu);
+    });
+
 }
+
+var dataSensor = {
+    humid : '',
+    waktu : '',
+    setHumid : function(data){
+        this.humid = data;
+    },
+    getHumid : function(){
+        return this.humid;
+    }
+};
+
+var paramSensor = dataSensor;
+
 
 var ledBtn = {
     btn: document.getElementById("LED"),

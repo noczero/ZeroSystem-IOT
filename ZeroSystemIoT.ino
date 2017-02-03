@@ -27,6 +27,7 @@ void pinInputOutput() {
   pinMode(LED, OUTPUT);
 }
 
+
 void setup() {
   // put your setup code here, to run once:
   pinInputOutput();
@@ -150,7 +151,7 @@ void loop() {
      } else if (command == '2'){
       turnOnLED(LED);
       Serial.println("LED ON");
-     } else if (command = '3'){
+     } else if (command == '3'){
       turnOffLED(LED);
       Serial.println("LED OFF");
      }
