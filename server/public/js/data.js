@@ -267,90 +267,92 @@ $(document).ready(function() {
 
     Highcharts.chart('zeroGraph', {
         chart: {
-            type: 'spline'
+            type: 'spline',
+            events : {
+                load : function() {
+                        var series = this.series[0];
+                        setInterval(function () {
+                            var x = (new Date()).getTime(), // current time
+                                y = Math.floor(ISPU.getCO());
+                            series.addPoint([x, y], true, true);
+                        }, 1000);
+                }
+            }
         },
         title: {
             text: 'MQ-2 Sensor'
         },
         xAxis: {
             type: 'datetime',
+             crosshair : true,
             labels: {
                 overflow: 'justify'
             }
         },
         yAxis: {
             title: {
-                text: 'Wind speed (m/s)'
+                text: 'ISPU (Indeks Pencemaran Udara)'
             },
+             crosshair : true,
             minorGridLineWidth: 0,
             gridLineWidth: 0,
             alternateGridColor: null,
             plotBands: [{ // Light air
                 from: 0 ,
-                to: 1.5,
+                to: 50,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
-                    text: 'Light air',
+                    text: 'Sangat Baik',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Light breeze
-                from: 1.5,
-                to: 3.3,
+                from: 50,
+                to: 100,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
-                    text: 'Light breeze',
+                    text: 'Baik',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Gentle breeze
-                from: 3.3,
-                to: 5.5,
+                from: 100,
+                to: 200,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
-                    text: 'Gentle breeze',
+                    text: 'Sedang',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Moderate breeze
-                from: 5.5,
-                to: 8,
+                from: 200,
+                to: 300,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
-                    text: 'Moderate breeze',
+                    text: 'Tidak Sehat',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Fresh breeze
-                from: 8,
-                to: 11,
+                from: 300,
+                to: 400,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
-                    text: 'Fresh breeze',
+                    text: 'Sangat tidak sehat',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Strong breeze
-                from: 11,
-                to: 14,
+                from: 400,
+                to: 1000,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
-                    text: 'Strong breeze',
-                    style: {
-                        color: '#606060'
-                    }
-                }
-            }, { // High wind
-                from: 14,
-                to: 15,
-                color: 'rgba(68, 170, 213, 0.1)',
-                label: {
-                    text: 'High wind',
+                    text: 'Berbahaya',
                     style: {
                         color: '#606060'
                     }
@@ -358,7 +360,7 @@ $(document).ready(function() {
             }]
         },
         tooltip: {
-            valueSuffix: ' m/s'
+            valueSuffix: ' Indeks'
         },
         plotOptions: {
             spline: {
@@ -370,18 +372,27 @@ $(document).ready(function() {
                 },
                 marker: {
                     enabled: false
-                },
-                pointInterval: 3600000, // one hour
-                pointStart: Date.UTC(2015, 4, 31, 0, 0, 0)
+                }
+
             }
         },
         series: [{
-            name: 'Hestavollane',
-            data: [0.2, 0.8, 0.8, 0.8, 1, 1.3, 1.5, 2.9, 1.9, 2.6, 1.6, 3, 4, 3.6, 4.5, 4.2, 4.5, 4.5, 4, 3.1, 2.7, 4, 2.7, 2.3, 2.3, 4.1, 7.7, 7.1, 5.6, 6.1, 5.8, 8.6, 7.2, 9, 10.9, 11.5, 11.6, 11.1, 12, 12.3, 10.7, 9.4, 9.8, 9.6, 9.8, 9.5, 8.5, 7.4, 7.6]
+            name: 'Carbon Monoxide',
+            data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
 
-        }, {
-            name: 'Vik',
-            data: [0, 0, 0.6, 0.9, 0.8, 0.2, 0, 0, 0, 0.1, 0.6, 0.7, 0.8, 0.6, 0.2, 0, 0.1, 0.3, 0.3, 0, 0.1, 0, 0, 0, 0.2, 0.1, 0, 0.3, 0, 0.1, 0.2, 0.1, 0.3, 0.3, 0, 3.1, 3.1, 2.5, 1.5, 1.9, 2.1, 1, 2.3, 1.9, 1.2, 0.7, 1.3, 0.4, 0.3]
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: Math.floor(ISPU.getCO())
+                        });
+                    }
+                    return data;
+                }())
+
         }],
         navigation: {
             menuItemStyle: {

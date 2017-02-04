@@ -72,7 +72,7 @@ void setup() {
   mfrc522.PCD_Init(); // Init MFRC522 card
   Serial.println("Scan PICC to see UID and type...");
   Serial.print("Calibrating...\n");                
-  Ro = MQCalibration(MQ2);                       //Calibrating the sensor. Please make sure the sensor is in clean air 
+  //Ro = MQCalibration(MQ2);                       //Calibrating the sensor. Please make sure the sensor is in clean air 
                                                     //when you perform the calibration                    
   Serial.print("Calibration is done...\n"); 
 }
