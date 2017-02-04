@@ -9,6 +9,11 @@
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="css/custom.css">
     <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/chart.css">
+
+    
+
+
 </head>
 
 <body onload="update()">
@@ -65,14 +70,19 @@ Command Button :</h5>
         </div>
         <hr>
         <h5> <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i> Parameter Data</h5>
-        <table class="table table-hover ">
-            <caption>RAW Data</caption>
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-hover ">
+            
             <thead>
                 <tr>
                     <th>Status</th>
                     <th>Humidity</th>
                     <th>Temperature</th>
                     <th>Moisture</th>
+                    <th>LPG</th>
+                    <th>Carbon</th>
+                    <th>Smokes</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,16 +91,21 @@ Command Button :</h5>
                     <td id="humidity">data </td> 
                     <td id="temperature">data</td>
                     <td id="moisture">data</td>
+                    <td id="lpg">data</td>
+                    <td id="co">data</td>
+                    <td id="anySmoke">data</td>
                 </tr>
             </tbody>
         </table>
-        <table class="table table-hover">
+            </div>
+            <div class="col-md-6">
+                <table class="table table-hover">
             <thead>
                 <tr>
                     <th>Acc X</th>
                     <th>Acc Y</th>
                     <th>Acc Z</th>
-                    <th>Smoke</th>
+                    <th>Air Condition</th>
                     <th>Motion</th>
                 </tr>
             </thead>
@@ -104,11 +119,20 @@ Command Button :</h5>
                 </tr>
             </tbody>
         </table>
+            </div>
+        </div>
+        
+        
         <hr>
         <h5> <i class="fa fa-line-chart fa-lg fa-fw" aria-hidden="true"></i>
 Graph</h5>
         <br>
-        <div id="zeroGraph" style="width:100%;height:300px">
+        <div class="row">
+            <div id="zeroGraph" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto">
+            </div>
+            <div id="zeroGraph1" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto; ">
+        </div>
+
         </div>
         <div class="row">
             <div class="col-md-4 watering">
@@ -174,18 +198,17 @@ Graph</h5>
         </div>
     </div>
 </body>
-<script src="js/jquery.js"></script>
-<script src="js/bootstrap.js"></script>
-<script src="plugins/flot/jquery.flot.js"></script>
-<script src="js/data.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="js/moment.js"></script>
-<script src="js/notify.js"></script>
-<script>
-function clock() {
-    document.getElementById("localtime").innerHTML = moment().format('MMMM Do YYYY, h:mm:ss a');
-}
-setInterval(clock, 1000);
-</script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="plugins/flot/jquery.flot.js"></script>
+<script type="text/javascript" src="js/data.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="js/moment.js"></script>
+<script type="text/javascript" src="js/notify.js"></script>
+
+<script type="text/javascript" src="js/highcharts.js"></script>
+
+
+<script type="text/javascript" src="plugins/highcharts/code/js/themes/grid-light.js"></script>
 
 </html>

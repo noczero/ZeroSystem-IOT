@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.14.0",
+    "highcharts": "^5.0.7",
     "jquery": "^3.1.1",
     "mysql": "^2.13.0",
     "php-node": "0.0.2",

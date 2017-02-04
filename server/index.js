@@ -9,6 +9,9 @@ var io = require('socket.io').listen(server);
 app.use(express.static(path.join(__dirname, 'public')));
 var portNumber = 3030;
 server.listen(portNumber);
+
+
+
 var portName = process.argv[2];
 
 var mysql = require('mysql');
@@ -69,7 +72,7 @@ zeroPort.on('open', function() {
 
   //getData
   var temp ; 
-  zeroDB.query('SELECT * FROM humidity' , function (error, results, fields) {
+  zeroDB.query('SELECT * FROM humidity WHERE ' , function (error, results, fields) {
             temp = results;
           });
   
