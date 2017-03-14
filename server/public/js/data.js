@@ -5,13 +5,15 @@ var humid = 0,
     accX = 0,
     accY = 0,
     accZ = 0,
-    smoke = 0,
+    air = 0,
     pir = 0,
     co = 0,
     lpg = 0;
 
 var muncul = 0;
 var LEDhidup;
+
+
 
 function update() {
     var socket = io.connect();
@@ -20,20 +22,20 @@ function update() {
         var Header = data.datahasil[0];
         humid = parseInt(data.datahasil[1]);
         temp = parseInt(data.datahasil[2]);
-        moisture = parseInt(data.datahasil[3]);
-        accX = parseInt(data.datahasil[4]);
-        accY = parseInt(data.datahasil[5]);
-        accZ = parseInt(data.datahasil[6]);
-        smoke = parseInt(data.datahasil[7]);
-        lpg = parseInt(data.datahasil[8]);
-        co = parseInt(data.datahasil[9]);
-        anySmoke = parseInt(data.datahasil[10]);
-        pir = parseInt(data.datahasil[11]);
+        //moisture = parseInt(data.datahasil[3]);
+        //accX = parseInt(data.datahasil[4]);
+        //accY = parseInt(data.datahasil[5]);
+        //accZ = parseInt(data.datahasil[6]);
+        air = parseInt(data.datahasil[3]);
+        lpg = parseInt(data.datahasil[4]);
+        co = parseInt(data.datahasil[5]);
+        anySmoke = parseInt(data.datahasil[6]);
+        pir = parseInt(data.datahasil[7]);
 
         //Debug
         console.log(data.datahasil);
         ISPU.setCO(co);
-        console.log(ISPU.getCO());
+       	// console.log(ISPU.getCO());
         // console.log(ISPU.getCO());
         // console.log(ISPU.Xa.CO[2]);
         // console.log(ISPU.Ia[0]);
@@ -48,7 +50,7 @@ function update() {
         $("#accX").html(accX);
         $("#accY").html(accY);
         $("#accZ").html(accZ);
-        $("#smoke").html(smoke);
+        $("#air").html(air);
         $("#lpg").html(lpg);
         $("#co").html(co);
         $("#anySmoke").html(anySmoke);
@@ -64,6 +66,9 @@ function update() {
             muncul = 0;
         }
 
+        if (pir == 1 ) {
+            $.notify("Any movement", "warn");
+        } 
     
     });
 
@@ -449,3 +454,4 @@ function rumusISPU( Xx, Ia , Ib , Xa , Xb){
 
     return data;
 }
+

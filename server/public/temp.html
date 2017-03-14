@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Dashboard > ZeroSystem-IOT</title>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="css/custom.css">
+        <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/chart.css">
+        <!-- Style Data Tables -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.13/datatables.min.css"/>
+        <link rel="sytlesheet" type="text/css" href="plugins/DataTables/css/jquery.dataTables.min.css">
+        <link rel="sytlesheet" type="text/css" href="plugins/DataTables/css/dataTables.bootstrap.css">
+        <script src="https://code.highcharts.com/stock/highstock.js"></script>
+        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">ZeroSystem-IOT</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li ><a href="/">Home</a></li>
+                        <li><a href="#about" data-toggle="modal" data-target="#about">About</a></li>
+                        <li class="active" ><a href="/temp.html">Temperature</a></li>
+                        <li ><a href="/humid.html">Kelembaban</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <div class="navbar-text" align="center">
+                            <span class="glyphicon glyphicon-time"></span>
+                            <small id="localtime"></small>
+                        </div>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div class="container">
+            <h3> Temperature Summary </h3>
+            <hr>
+            <table id="example" class="display table-hover" width="100%">
+                <thead>
+                    <tr>
+                        <th>No </th>
+                        <th>Suhu (celcius)</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                    <th>No </th>
+                    <th>Suhu (celcius)</th>
+                    <th>Waktu</th>
+                </tr>
+                </tfoot>
+            </table>
+            <br>
+            <div id="tabeltemp" style="height: 450px ; min-width: 310px" >
+                
+            </div>
+
+            <div id="test"></div>
+        </div>
+        <footer>
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="copyright">Copyright © Zero-Inside</span>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-inline social-buttons">
+                        <li><a href="https://twitter.com/noczero"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li><a href="https://www.facebook.com/echo.satrya"><i class="fa fa-facebook"></i></a>
+                </li>
+                <li><a href="https://id.linkedin.com/in/satrya-budi-pratama-90050111b
+                "><i class="fa fa-linkedin"></i></a>
+            </li>
+            <li><a href="https://github.com/noczero"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="https://www.youtube.com/channel/UCqYDeVXqbDelMiG_LD2xq7w"><i class="fa fa-youtube"></i></a>
+    </li>
+</ul>
+</div>
+<div class="col-md-4">
+<span class="copyright"> Made with <span class="fa fa-heartbeat" style="color:#f66767"></span> in Bandung, Indonesia</span>
+</div>
+</div>
+</footer>
+</body>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="plugins/flot/jquery.flot.js"></script>
+<!-- <script type="text/javascript" src="js/data.js"></script> -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="js/moment.js"></script>
+<script type="text/javascript" src="js/notify.js"></script>
+<!-- <script type="text/javascript" src="js/highcharts.js"></script>
+<script type="text/javascript" src="plugins/highcharts/code/js/themes/grid-light.js"></script> -->
+<!-- DAta Tables -->
+<script type="text/javascript" src="plugins/DataTables/js/jquery.dataTables.min.js"></script>
+<!-- add instrument -->
+<script type="text/javascript" src="app/flightinstrument.js"></script>
+<!-- <script type="text/javascript" src="plugins/instrument/js/jquery.flightindicator.js"></script>
+-->
+<script type="text/javascript" src="app/temperature.js"></script>
+<script>
+function clock() {
+document.getElementById("localtime").innerHTML = moment().format('MMMM Do YYYY, h:mm:ss a');
+}
+setInterval(clock, 1000);
+</script>
+</html>
