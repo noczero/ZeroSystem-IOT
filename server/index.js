@@ -6,8 +6,8 @@ var php = require('php-node'); //using php on node.js
 var path = require('path'); //path directory lib
 var fs = require('fs'); //manage file.
 
-var moment = require('moment-timezone'); //config timezone
-moment().tz("Asia/Bangkok").format();
+//var moment = require('moment-timezone'); //config timezone
+//moment().tz("Asia/Bangkok").format();
 process.env.TZ = 'Asia/Bangkok'; 
 
 require('events').EventEmitter.defaultMaxListeners = Infinity; //socket.io infinity users
@@ -71,7 +71,7 @@ var datahasil ,
 var zeroPort = new SerialPort(
   portName,
   {
-    baudRate : 57600,
+    baudRate : 115200,
     databits : 8,
     parity : 'none',
     parser : SerialPort.parsers.readline('\r\n')

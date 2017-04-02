@@ -83,3 +83,27 @@ footer ul.quicklinks {
     text-transform: none
 }
 
+.gaugeCompass {
+  margin-left: 50px
+}
+
+#cube .left,
+#cube .right {
+  background: url('/img/windreflect.jpg') 0px 0px;
+  width: 421px;
+  height: 213px;
+}
+
+#cube .front {
+  background: url('/img/wnd.jpg') 0px 0px;
+  width: 421px;
+  height: 213px;
+}
+#cube .back {
+  background: url('/img/windreflect.jpg') 0px 0px;
+  width: 421px;
+  height: 213px;
+}
+
+#cube .bottom { background: rgba(0,0,0,0.0); }
+#cube .top { background: rgba(0,0,0,0.0); }

@@ -8,12 +8,16 @@ var humid = 0,
     air = 0,
     pir = 0,
     co = 0,
-    lpg = 0;
+    lpg = 0,
+    arahAngin = 0;
 
 var muncul = 0;
 var LEDhidup;
 
 
+var stage = Sprite3D.stage(document.querySelector("#sikap"));
+            // "verbose" version
+var box = Sprite3D.box( 421, 200, 5, "cube" ); //lebar tinggi panjang
 
 function update() {
     var socket = io.connect();
@@ -23,15 +27,20 @@ function update() {
         humid = parseInt(data.datahasil[1]);
         temp = parseInt(data.datahasil[2]);
         //moisture = parseInt(data.datahasil[3]);
-        //accX = parseInt(data.datahasil[4]);
-        //accY = parseInt(data.datahasil[5]);
-        //accZ = parseInt(data.datahasil[6]);
+        
         air = parseInt(data.datahasil[3]);
         lpg = parseInt(data.datahasil[4]);
         co = parseInt(data.datahasil[5]);
         anySmoke = parseInt(data.datahasil[6]);
         pir = parseInt(data.datahasil[7]);
+        arahAngin = parseInt(data.datahasil[8]);
+        accX = parseInt(data.datahasil[8]);
+        accY = parseInt(data.datahasil[9]);
+        accZ = parseInt(data.datahasil[10]);
 
+        box.rotation( accY, 360 - accX, accZ); //pitch yaw roll
+        box.update();
+        stage.appendChild(box);
         //Debug
         console.log(data.datahasil);
         ISPU.setCO(co);

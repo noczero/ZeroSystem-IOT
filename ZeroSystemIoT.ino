@@ -2,7 +2,11 @@
 //#include <MFRC522.h>
 
 #include <dht.h>
+#include <Wire.h>
+#include <CMPS10.h>
+
 dht DHT;
+CMPS10 compass;
 int start = 0;
 int humid = 0;
 bool ledOn = false;
@@ -12,11 +16,12 @@ bool ledOn = false;
 //#define accY A2
 //#define accZ A3
 #define MQ2 A0
-#define Pir 3
+#define Pir 7
 #define LED 4
 //#define SS_PIN 10
 //#define RST_PIN 9
 //MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance.
+
 
 #define         RL_VALUE                     (5)     //define the load resistance on the board, in kilo ohms
 #define         RO_CLEAN_AIR_FACTOR          (9.83)  //RO_CLEAR_AIR_FACTOR=(Sensor resistance in clean air)/RO,
@@ -75,7 +80,7 @@ void setup() {
   //mfrc522.PCD_Init(); // Init MFRC522 card
   //Serial.println("Scan PICC to see UID and type...");
   Serial.print("Calibrating...\n");                
-  Ro = MQCalibration(MQ2);                       //Calibrating the sensor. Please make sure the sensor is in clean air 
+ // Ro = MQCalibration(MQ2);                       //Calibrating the sensor. Please make sure the sensor is in clean air 
                                                     //when you perform the calibration                    
   Serial.print("Calibration is done...\n"); 
 }
@@ -203,7 +208,7 @@ void smoke(int MQ2){
 
 void motionSense(int x){
   int moves = digitalRead(x);
-  Serial.print(",");Serial.print(moves);
+  Serial.print(",");Serial.print(moves);Serial.print(",");
 }
 
 void temp_humid(){
@@ -264,7 +269,14 @@ boolean micro_is_5V = true;
 //}
 
 
-
+//CMPS10
+void printCompass() {
+  Serial.print(compass.bearing());
+    Serial.print(",");
+  Serial.print(compass.pitch());
+  Serial.print(",");
+  Serial.print(compass.roll());
+}
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -293,8 +305,10 @@ void loop() {
     temp_humid();
     //moisture(MoisturePIN);
    // accelerometer(accX,accY,accZ);
+    //print
     smoke(MQ2);
     motionSense(Pir);
+    printCompass();
     Serial.println();
   }
 
@@ -302,12 +316,7 @@ void loop() {
     turnOnLED(LED);
   }
 
-  delay(1000);
+  delay(100);
   
 }
 
-// Same functionality as Arduino's standard map function, except using floats
-//float mapf(float x, float in_min, float in_max, float out_min, float out_max)
-//{
-//  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-//}
