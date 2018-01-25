@@ -1,195 +1,276 @@
-var SerialPort = require('serialport'); //serialport for connecting to Arduino
-var express = require('express'); // webframework on node.js
-var bodyParser = require('body-parser'); //using body parser to easy parsing
-var app = express(); //run express on app;
-var php = require('php-node'); //using php on node.js
-var path = require('path'); //path directory lib
-var fs = require('fs'); //manage file.
+'use strict';
 
-//var moment = require('moment-timezone'); //config timezone
-//moment().tz("Asia/Bangkok").format();
-process.env.TZ = 'Asia/Bangkok'; 
+// use readline parser
+/*----------  SerialPort  ----------*/
 
-require('events').EventEmitter.defaultMaxListeners = Infinity; //socket.io infinity users
-var server = require('http').createServer(app); //create server from express config
-var io = require('socket.io').listen(server); //create io.socket to run in server
+const SerialPort = require('serialport');
+const parsers = SerialPort.parsers;
+
+const parser = new parsers.Readline({
+	delimiter : '\r\n'
+});
+
+const portName = process.argv[2] || '/dev/ttyACM0' ; //get port from the command
+const port = new SerialPort(
+	portName , 
+	{
+		baudRate : 115200 
+	}
+);
+port.pipe(parser); // using parser 
+
+
+/*----------  Express & Socket IO ----------*/
+const express = require('express');
+const path = require('path');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const portWeb = process.env.PORT || 3000; //process.env.port use with command PORT='someport' in node or default 3000
 
 //config express for using json
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+	extended : false
+}));
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('json spaces', 4); //tidy the json code
+app.set('json spaces' , 4);
 
-var portNumber = 3030;
-server.listen(portNumber); //start http-server on port
-
-var portName = process.argv[2]; //get port number on command
-
-//create MySQL connection 
-var mysql = require('mysql');
-var zeroDB = mysql.createConnection({
-  host : 'localhost',
-  user : 'root',
-  password : 'noczero',
-  database : 'zeroWeather'
+http.listen(portWeb, () => {
+  console.log('listening on *:${portWeb}');
 });
 
-// check MySQL connection 
-zeroDB.connect(function(err) {
-  if (err) {
-    console.error('error connecting: ' + err.stack);
-    return;
-  }
-  console.log('Success, Database connected... \n connected as id ' + zeroDB.threadId);
+// LED variable
+let hidup = false, nyala = false;
+
+
+
+
+/*==============================
+=            Python            =
+==============================*/
+// const PythonShell = require('python-shell');
+// const fileName = 'dht22sensor.py';
+// const dht22Python = new PythonShell(fileName);
+// let dataDHT22 = [];
+// dht22Python.on('message' , (message) => {
+// 	let RAWData, dataHasil;
+// 	RAWData = message.toString();
+// 	RAWData = RAWData.replace(/(\r\n|\n|\r)/gm, '');
+// 	dataHasil = RAWData.split(',');
+// 	dataDHT22 = dataHasil;
+// 	console.log(dataHasil);
+// });
+
+/*=====  End of Python  ======*/
+
+
+
+
+
+
+/*----------  Main   ----------*/
+port.on('open' , () => {
+	console.log('Serial Port Starting... \n Serial Port Open...');
+
+	// waiting open and send some command
+	let delayMilis = 3000;
+	setTimeout( () => {
+		// send 1 to start
+		port.write('1' , (err) => {
+			if (err)
+				return console.log('Error on write : ' , err.message);
+			console.log('Connected... ');
+		});
+
+
+	}, delayMilis);
+
+});
+/*================================
+=            Cron Job            =
+================================*/
+const cron = require('cron').CronJob;
+const turningONLED = new cron({
+	cronTime : '00 00 18 * * *',
+	onTick : () => {
+		if(!hidup)
+			port.write('2', (err) => {
+				if(err)
+					console.log(err.message);
+			});
+	},
+	start : false,
+	timeZone : 'Asia/Jakarta'
+});
+turningONLED.start();
+
+const turningOFFLED = new cron({
+	cronTime : '00 00 06 * * *',
+	onTick : () => {
+		if(hidup)
+			port.write('3', (err) => {
+				if(err)
+					console.log(err.message);
+			});
+	},
+	start : false,
+	timeZone : 'Asia/Jakarta'
+});
+turningOFFLED.start();
+/*=====  End of Cron Job  ======*/
+
+
+/*==================================
+=            Socket.io             =
+==================================*/
+let countConnected = 0 , dcClient = 0;
+io.on('connection', (socket) => {
+	countConnected++;
+	console.log('a user connected ' + countConnected);
+
+	
+
+	socket.on('disconnect' , () => {
+		dcClient++;
+		countConnected--;
+		console.log('Client Disconnect..')
+		console.log('Online : ' + countConnected + 'Offline : ' + dcClient);
+	});
+
+	socket.on('stop' , (data) => {
+		port.write('0' , (err) => {
+			if(err)
+				console.log(err.message);
+		});
+	});
+
+	socket.on('startAgain' , (data) => {
+		port.write('1' , (err) => {
+			if(err)
+				console.log(err.message);
+		});
+	});
+
+	socket.on('LedON' , (data) => {
+		port.write('2', (err) => {
+			if(err)
+				console.log(err.message);
+			else 
+				hidup = true;
+		});
+	});
+
+	socket.on('LedOff' , (data) => {
+		port.write('3', (err) => {
+			if (err)
+				console.log(err.message);
+			else
+				hidup = false;
+		});
+	});
 });
 
-//get query from mysql for humidity
-app.get('/humid', function(req ,res){
-  zeroDB.query('SELECT nilai, UNIX_TIMESTAMP(waktu) as waktu FROM humidity' , function(error, results , fields){
-    if (error) throw error;
-    res.json({ data : results}); //kirim json data hasil query
-  });
-});
 
-//get query from mysql for temperature
-app.get('/temp', function(req , res ) {
-  zeroDB.query('SELECT nilai , UNIX_TIMESTAMP(waktu) as waktu FROM temperature ', function(error , results , fields){
-    if (error) throw error;
-    res.json({data : results}); //kirim json data hasil query
-  });
-});
+parser.on('data' , (data) => {
+		let RAWData, dataHasil;
+		RAWData = data.toString();
+		RAWData = RAWData.replace(/(\r\n|\n|\r)/gm, '');
+		dataHasil = RAWData.split(',');
 
-//variable declare
-var datahasil , 
-  RAWData , 
-  jumlahClient = 0 ,
-  dcClient = 0 ,
-  hidup = false ,
-  temp;
+		if (dataHasil[0] == "OK" ) {
+			//console.log(dataHasil);
 
-// configure Serial Port to connect to Arduino
-var zeroPort = new SerialPort(
-  portName,
-  {
-    baudRate : 115200,
-    databits : 8,
-    parity : 'none',
-    parser : SerialPort.parsers.readline('\r\n')
-  });
+			io.sockets.emit('kirim' , {datahasil : dataHasil});
+			
+		}
+
+		io.sockets.emit('button' , hidup);
+		//io.sockets.emit('tempDB' , temp);
+	});
 
 
-//post humidity data
-function insertHumid(data){
-  zeroDB.query('INSERT INTO humidity SET nilai=? ' , data ,function(err, result) { 
-    if(err){
-      console.log(err);
-    } 
-  });
+// /*=====  End of Socket.io   ======*/
+
+// /*============================
+// =            MQTT            =
+// ============================*/
+const mqtt = require('mqtt');
+const topic = '#'; //subscribe to all topics
+const broker_server = 'mqtt://localhost';
+
+const options = {
+	clientId : 'MyMQTT',
+	port : 1883,
+	keepalive : 60
 }
 
-//post temperature data
-function insertTemp(data){
-  zeroDB.query('INSERT INTO temperature SET nilai=? ' , data ,function(err, result) { 
-    if(err){
-      console.log(err);
-    } 
-  });
+let clientMqtt = mqtt.connect(broker_server,options);
+clientMqtt.on('connect', mqtt_connect);
+clientMqtt.on('reconnect', mqtt_reconnect);
+clientMqtt.on('error', mqtt_error);
+clientMqtt.on('message', mqtt_messageReceived);
+clientMqtt.on('close', mqtt_close);
+
+function mqtt_connect() {
+	clientMqtt.subscribe(topic, mqtt_subscribe);
 }
 
-//Bad use
-function savedataToFile(data){
-    //save log to file txt
-  fs.appendFile('log.txt' , data , function (err){
-    if (err) {
-      console.log(err);
-    }
-  });
+function mqtt_subscribe(err, granted) {
+	console.log("Subscribed to " + topic);
+	if (err)
+		console.log(err);
 }
 
-// log data to txt (good use)
-var logger = fs.createWriteStream('log.txt' , {
-  flags : 'a'
-});
+function mqtt_reconnect(err){
+	clientMqtt = mqtt.connect(broker_server, options); // reconnect
+}
 
-zeroPort.on('open', function() {
-  console.log('ZeroSystem-IoT Started');
-  console.log('======================');
-  console.log('Port Open, Server on port ' + portNumber);
+function mqtt_error(err){
+	console.log(err);
+}
 
-  var delayMillis = 3000; //3 second
-  setTimeout(function() {
-    //your code to be executed after 3 second
-    zeroPort.write('1', function(err) {
-    if (err) {
-      return console.log('Error on write: ', err.message);
+function after_publish() {
+	//call after publish
+}
+
+let dataDHT22;
+function mqtt_messageReceived(topic , message , packet){
+	//console.log('Message received : ' + message);
+	//console.log('Topic :' + topic);
+	io.sockets.emit('dataDHT22' , JSON.parse(message.toString()));
+}
+
+function mqtt_close(){
+	console.log("Close MQTT");
+}
+
+// /*=====  End of MQTT  ======*/
+
+
+process.stdin.resume();//so the program will not close instantly
+
+function exitHandler(options, err) {
+    if (options.cleanup) {
+    	port.close(function (err) {
+		    console.log('port closed', err);
+		});
+    	console.log('clean');
     }
-    console.log('Started....');
-    });
-  }, delayMillis);
+    if (err) console.log(err.stack);
+    if (options.exit) process.exit();
+}
 
-  //post data to mysql every 20 minutes
-  setInterval(function(){
-    if (datahasil[0] != null){
-      insertHumid(datahasil[1]);
-      insertTemp(datahasil[2]);
-      console.log('Insert into Database every 20 minutes');
-    } else {
-      console.log('404:datahasil not found');
-    }
-  }, 1200000);
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
-  //io.socket main communication
-  io.on('connection' , function(socket){
-      jumlahClient++;
-      console.log('Number of Client : ' + jumlahClient);
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 
-      //get data from arduino
-      zeroPort.on('data', function(data) {
-         RAWData = data.toString();
-          RAWData = RAWData.replace(/(\r\n|\n|\r)/gm,""); //word replacer to simply parsing
-          datahasil = RAWData.split(','); //split the data with ,
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
 
-          //send event in web server
-          if (datahasil[0] == "OK" ) {
-            socket.emit('kirim', {datahasil:datahasil}); 
-            //logger.write(datahasil + '\r\n'); //save log
-          }
-
-          socket.emit('button', hidup ); //just button to LEDon
-          socket.emit('tempDB',  temp); //wtf
-          //savedataToFile(datahasil); //baduse
-        });
-         
-      //handle disconnect users
-      socket.on('disconnect' , function() {
-          dcClient++;
-          console.log('1 client disconnected , Total : ' + dcClient);
-          jumlahClient--;
-          console.log('Number of Client : ' + jumlahClient);
-      });
-
-      //receive socket emit from browser
-      socket.on('stop' , function(data) {
-          zeroPort.write('0'); //send 0 to arduino
-      });
-
-      socket.on('startAgain', function(data){
-        zeroPort.write('1');
-      });
-    
-      socket.on('LedON' , function(data){
-        zeroPort.write('2');
-        hidup = true;
-      });
-
-      socket.on('LedOff', function(data){
-        zeroPort.write('3');
-        hidup = false;
-      });
-
-      socket.on('water', function(data){
-        zeroPort.write('4');
-      });
-
-    });
-});
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
