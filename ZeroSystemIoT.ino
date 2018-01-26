@@ -3,17 +3,21 @@
 
 #include <dht.h>
 #include <Wire.h>
-#include <CMPS10.h>
+#include <SimpleTimer.h>
+//#include <CMPS10.h>
 
 dht DHT;
-CMPS10 compass;
+SimpleTimer timer;
+
+//CMPS10 compass;
 int start = 0;
 int humid = 0;
 bool ledOn = false;
 #define DHT11_PIN 2
-//#define MoisturePIN A0
+#define DHT11_PIN_new 8
+#define rainDrop A1
 //#define accX A1
-//#define accY A2
+//#define accY A2s
 //#define accZ A3
 #define MQ2 A0
 #define Pir 7
@@ -57,19 +61,26 @@ float           Ro           =  9.8;                 //Ro is initialized to 10 k
 
 void pinInputOutput() {
   pinMode(DHT11_PIN, INPUT);
+  pinMode(DHT11_PIN_new, INPUT);
   //pinMode(accX, INPUT);
   //pinMode(accY, INPUT);
   //pinMode(accZ, INPUT);
-//  pinMode(MoisturePIN, INPUT);
+  pinMode(rainDrop, INPUT);
   pinMode(MQ2, INPUT);
   pinMode(Pir, INPUT);
   pinMode(LED, OUTPUT);
 }
 
+void triggerLED() {
+  if(ledOn){
+    turnOnLED(LED);
+  }
+}
 
 void setup() {
   // put your setup code here, to run once:
   pinInputOutput();
+  timer.setInterval(500,triggerLED);
   Serial.begin(115200);
   Serial.println("Zero System");
   Serial.println("===========");
@@ -87,7 +98,11 @@ void setup() {
 
 void turnOnLED(int x){
   digitalWrite(x , HIGH);
-  delay(80);
+  delay(60);
+  digitalWrite(x , LOW);
+  delay(10);
+  digitalWrite(x , HIGH);
+  delay(30);
   digitalWrite(x , LOW);
 }
 
@@ -208,7 +223,7 @@ void smoke(int MQ2){
 
 void motionSense(int x){
   int moves = digitalRead(x);
-  Serial.print(",");Serial.print(moves);Serial.print(",");
+  Serial.print(",");Serial.print(moves); 
 }
 
 void temp_humid(){
@@ -232,6 +247,28 @@ void temp_humid(){
   Serial.print(DHT.humidity, 1);
   Serial.print(",");
   Serial.print(DHT.temperature, 1);
+}
+
+void temp_humid_new(){
+  int chk = DHT.read11(DHT11_PIN_new);
+  switch (chk)
+  {
+    case DHTLIB_OK:  
+                Serial.print(",");
+                Serial.print(DHT.humidity, 1);
+                Serial.print(",");
+                Serial.print(DHT.temperature, 1);
+                break;
+    case DHTLIB_ERROR_CHECKSUM: 
+                Serial.print("Checksum error,"); 
+                break;
+    case DHTLIB_ERROR_TIMEOUT: 
+                Serial.print("Time out error,"); 
+                break;
+    default: 
+                Serial.print("Unknown error,"); 
+                break;
+  }
 }
 
 void moisture(int pinA0){
@@ -270,13 +307,13 @@ boolean micro_is_5V = true;
 
 
 //CMPS10
-void printCompass() {
-  Serial.print(compass.bearing());
-    Serial.print(",");
-  Serial.print(compass.pitch());
-  Serial.print(",");
-  Serial.print(compass.roll());
-}
+//void printCompass() {
+//  Serial.print(compass.bearing());
+//    Serial.print(",");
+//  Serial.print(compass.pitch());
+//  Serial.print(",");
+//  Serial.print(compass.roll());
+//}
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -303,20 +340,20 @@ void loop() {
   
   if (start == 1){
     temp_humid();
-    //moisture(MoisturePIN);
    // accelerometer(accX,accY,accZ);
     //print
     smoke(MQ2);
     motionSense(Pir);
-    printCompass();
+    moisture(rainDrop);
+//    printCompass();
+    temp_humid_new();
     Serial.println();
   }
 
-  if (ledOn) {
-    turnOnLED(LED);
-  }
-
-  delay(100);
+//  if (ledOn) {
+//    turnOnLED(LED);
+//  }
+  timer.run();
+  delay(50);
   
 }
-

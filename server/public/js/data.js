@@ -10,7 +10,7 @@ var humid = 0,
     co = 0,
     lpg = 0,
     arahAngin = 0,
-    windvelo,lux,rain,smoke,smoke2,humidDHT = 0,
+    windvelo,lux,rain,smoke,smoke2,humidDHT = 0, humidNew = 0, tempNew = 0,
     tempDHT = 0;
 
 var muncul = 0;
@@ -35,6 +35,8 @@ function update() {
         smoke2 = parseInt(data.datahasil[6]);
         pir = parseInt(data.datahasil[7]);
         rain = parseInt(data.datahasil[8]);
+        humidNew = parseInt(data.datahasil[9]);
+        tempNew = parseInt(data.datahasil[10]);
 
         // accX = parseInt(data.datahasil[8]);
         // accY = parseInt(data.datahasil[9]);
@@ -57,8 +59,8 @@ function update() {
 
 
         $("#rawdata").html(Header);
-        $("#temperature").html(temp + '°C');
-        $("#humidity").html(humid + '%');
+        $("#temperature").html(tempNew + '°C');
+        $("#humidity").html(humidNew + '%');
         //$("#press").html(press);
         // $("#accX").html(accX);
         // $("#accY").html(accY);
@@ -70,6 +72,8 @@ function update() {
         
         $("#rain").html(rain);
         $("#pir").html(pir);
+        //$("#humidNew").html(humidNew +'%');
+        //$("#tempNew").html(tempNew + '°C');
 
         percentSiram = (rain / 1023) * 100;
         $("#maudisiram").css('width', percentSiram + '%').attr('aria-valuenow', percentSiram).html(parseInt(percentSiram) + " % Wet");
@@ -227,16 +231,30 @@ $(document).ready(function() {
                         var series = this.series[0];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = humid;
+                                y = humidNew;
                             series.addPoint([x, y], true, true);
                         }, 1000);
 
                           var series1 = this.series[1];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = temp;
+                                y = tempNew;
                             series1.addPoint([x, y], true, true);
                         }, 1000);
+
+                        // var series2 = this.series[2];
+                        // setInterval(function () {
+                        //     var x = (new Date()).getTime(), // current time
+                        //         y = tempNew;
+                        //     series2.addPoint([x, y], true, true);
+                        // }, 1000);
+
+                        //  var series3 = this.series[3];
+                        // setInterval(function () {
+                        //     var x = (new Date()).getTime(), // current time
+                        //         y = humidNew;
+                        //     series3.addPoint([x, y], true, true);
+                        // }, 1000);
                     }
             }
         },
@@ -259,7 +277,7 @@ $(document).ready(function() {
             }
         },
         series: [{
-            name: 'Humidity',
+            name: 'Humidity New',
             data: (function () {
                     var data = [],
                         time = (new Date()).getTime(),
@@ -268,14 +286,14 @@ $(document).ready(function() {
                     for (i = -19; i <= 0; i += 1) {
                         data.push({
                             x: time + i * 1000,
-                            y: humid
+                            y: humidNew
                         });
                     }
                     return data;
                 }())
         },
         {
-            name: 'Temperature',
+            name: 'Temperature New',
             data: (function () {
                     // generate an array of random data
                     var data = [],
@@ -285,12 +303,46 @@ $(document).ready(function() {
                     for (i = -19; i <= 0; i += 1) {
                         data.push({
                             x: time + i * 1000,
-                            y: temp
+                            y: tempNew
                         });
                     }
                     return data;
                 }())
         }
+        // {
+        //     name: 'Temperature New',
+        //     data: (function () {
+        //             // generate an array of random data
+        //             var data = [],
+        //                 time = (new Date()).getTime(),
+        //                 i;
+
+        //             for (i = -19; i <= 0; i += 1) {
+        //                 data.push({
+        //                     x: time + i * 1000,
+        //                     y: tempNew
+        //                 });
+        //             }
+        //             return data;
+        //         }())
+        // },
+        // {
+        //     name: 'Humidity New',
+        //     data: (function () {
+        //             // generate an array of random data
+        //             var data = [],
+        //                 time = (new Date()).getTime(),
+        //                 i;
+
+        //             for (i = -19; i <= 0; i += 1) {
+        //                 data.push({
+        //                     x: time + i * 1000,
+        //                     y: humidNew
+        //                 });
+        //             }
+        //             return data;
+        //         }())
+        // }
 
         ]
     });
