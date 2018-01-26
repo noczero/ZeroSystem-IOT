@@ -44,7 +44,121 @@ http.listen(portWeb, () => {
 // LED variable
 let hidup = false, nyala = false;
 
+/*=====================================
+=            Postgress SQL            =
+=====================================*/
+const postgress = require('pg');
+const config = {
+    user: 'pi',
+    database: 'zeroWeather',
+    password: 'noczero',
+    port: 5432
+};
 
+const pool = new postgress.Pool(config);
+//postgres://dbusername:passwrod@server:port/database
+const connectionString = process.env.DATABASE_URL || 'postgres://pi:noczero@localhost:5432/zeroWeather';
+
+function insertIndoor(){ 
+	pool.connect((err,client,done) => {
+		if(err){
+			done();
+			console.log(err);
+		}
+		if (dataDHT22 != undefined) {
+			const queryString = "INSERT INTO dhtindoor (temperature,humidity) VALUES (" +  [dataDHT22.temperature, dataDHT22.humidity].join(",")  + ")";
+			
+			client.query(queryString , (err,result) => {
+				if(err)
+					console.log(err)
+				else
+					console.log('insert DHT indoor success...');
+
+				done();
+
+			});
+		}
+	});
+} 
+
+function insertOutdoor(){ 
+	pool.connect((err,client,done) => {
+		if(err){
+			done();
+			console.log(err);
+		}
+		if (tempOut != undefined && humidOut != undefined ) {
+			const queryString = "INSERT INTO dhtoutdoor (temperature,humidity) VALUES (" +  [tempOut, humidOut].join(",")  + ")";
+			
+			client.query(queryString , (err,result) => {
+				if(err)
+					console.log(err)
+				else
+					console.log('insert DHT outdoor success...');
+
+				done();
+
+			});
+		}
+	});
+} 
+
+function getIndoor(){
+	const results = []; 
+	pool.connect((err,client,done) => {
+		if(err){
+			done();
+			console.log(err);
+		} else {
+			const queryString = "SELECT * FROM dhtindoor";
+
+			client.query(queryString, (err,result) => {
+				if(err){
+					console.log(err);
+				} else {
+					//console.log(result.rows);
+					results.push(result.rows);
+				}
+				done();
+		
+			});
+		}
+	});
+	return results;
+}
+//getIndoor();
+
+/*=====  End of Postgress SQL  ======*/
+/*===================================
+=            API Express            =
+===================================*/
+// app.get('/api/v1/indoor', (req,res,next) => {
+// 	 //let result = getIndoor();
+// 	const results = []; 
+// 	pool.connect((err,client,done) => {
+// 		if(err){
+// 			done();
+// 			console.log(err);
+// 		} else {
+// 			const queryString = "SELECT * FROM dhtindoor";
+
+// 			client.query(queryString, (err,result) => {
+// 				if(err){
+// 					console.log(err);
+// 				} else {
+// 					//console.log(result.rows);
+// 					results.push(result.rows);
+// 				}
+// 				done();
+		
+// 			});
+// 		}
+// 	});
+// 	 return res.json(results);
+// });
+
+
+/*=====  End of API Express  ======*/
 
 
 /*==============================
@@ -64,9 +178,54 @@ let hidup = false, nyala = false;
 // });
 
 /*=====  End of Python  ======*/
+/*================================
+=            Cron Job            =
+================================*/
+const cron = require('cron').CronJob;
+const turningONLED = new cron({
+	cronTime : '00 16 18 * * *',
+	onTick : () => {
+		if(!hidup) {
+
+			port.write('2', (err) => {
+				if(err)
+					console.log(err.message);
+				else 
+					hidup = true;
+			});
+		}
+	},
+	start : false,
+	timeZone : 'Asia/Jakarta'
+});
+
+const turningOFFLED = new cron({
+	cronTime : '00 32 22 * * *',
+	onTick : () => {
+		if(hidup) {		
+			port.write('3', (err) => {
+				if(err)
+					console.log(err.message);
+				else
+					hidup = false;
+			});
+		}
+	},
+	start : false,
+	timeZone : 'Asia/Jakarta'
+});
+/*=====  End of Cron Job  ======*/
 
 
 
+const insertDB = new cron({
+	cronTime : '00 01 * * * *',
+	onTick : () => {
+		insertIndoor(); 
+	},
+	start : false,
+	timeZone : 'Asia/Jakarta'
+});
 
 
 
@@ -86,40 +245,9 @@ port.on('open' , () => {
 
 
 	}, delayMilis);
+	//dont at below, it will stuck to on antoher event
+});
 
-});
-/*================================
-=            Cron Job            =
-================================*/
-const cron = require('cron').CronJob;
-const turningONLED = new cron({
-	cronTime : '00 00 18 * * *',
-	onTick : () => {
-		if(!hidup)
-			port.write('2', (err) => {
-				if(err)
-					console.log(err.message);
-			});
-	},
-	start : false,
-	timeZone : 'Asia/Jakarta'
-});
-turningONLED.start();
-
-const turningOFFLED = new cron({
-	cronTime : '00 00 06 * * *',
-	onTick : () => {
-		if(hidup)
-			port.write('3', (err) => {
-				if(err)
-					console.log(err.message);
-			});
-	},
-	start : false,
-	timeZone : 'Asia/Jakarta'
-});
-turningOFFLED.start();
-/*=====  End of Cron Job  ======*/
 
 
 /*==================================
@@ -172,7 +300,7 @@ io.on('connection', (socket) => {
 	});
 });
 
-
+let tempOut, humidOut;
 parser.on('data' , (data) => {
 		let RAWData, dataHasil;
 		RAWData = data.toString();
@@ -183,7 +311,6 @@ parser.on('data' , (data) => {
 			//console.log(dataHasil);
 
 			io.sockets.emit('kirim' , {datahasil : dataHasil});
-			
 		}
 
 		io.sockets.emit('button' , hidup);
@@ -239,7 +366,9 @@ let dataDHT22;
 function mqtt_messageReceived(topic , message , packet){
 	//console.log('Message received : ' + message);
 	//console.log('Topic :' + topic);
-	io.sockets.emit('dataDHT22' , JSON.parse(message.toString()));
+	dataDHT22 = JSON.parse(message.toString());
+	io.sockets.emit('dataDHT22' , dataDHT22);
+	//console.log(dataDHT22.temperature);
 }
 
 function mqtt_close(){
@@ -247,6 +376,24 @@ function mqtt_close(){
 }
 
 // /*=====  End of MQTT  ======*/
+
+
+
+
+
+/*================================
+=            Interval            =
+================================*/
+
+setInterval( () => {
+	insertIndoor();
+	insertOutdoor();
+},1000*60*10); //every 10 menit
+
+
+/*=====  End of Interval  ======*/
+
+
 
 
 process.stdin.resume();//so the program will not close instantly
