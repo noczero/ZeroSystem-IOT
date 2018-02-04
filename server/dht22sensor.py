@@ -6,7 +6,7 @@ import json
 broker = 'localhost'
 port = 1883
 sensor = DHT.DHT22
-pin = '17'
+pin = '27'
 
 def on_publish(client,userdata,result) :
 	print("data published \n")
@@ -26,6 +26,8 @@ while True :
 			"humidity" : humidity
 			})
 		ret = client1.publish("dht22" , jsonData)
+		client1.loop()
+
 		#print(ret)
 	else :
 		print('Failed to get reading, Try again!')

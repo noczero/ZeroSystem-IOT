@@ -87,7 +87,7 @@ function insertOutdoor(){
 			done();
 			console.log(err);
 		}
-		if (tempOut != undefined && humidOut != undefined ) {
+		if ((tempOut != undefined) && (humidOut != undefined) ) {
 			const queryString = "INSERT INTO dhtoutdoor (temperature,humidity) VALUES (" +  [tempOut, humidOut].join(",")  + ")";
 			
 			client.query(queryString , (err,result) => {
@@ -132,30 +132,51 @@ function getIndoor(){
 /*===================================
 =            API Express            =
 ===================================*/
-// app.get('/api/v1/indoor', (req,res,next) => {
-// 	 //let result = getIndoor();
-// 	const results = []; 
-// 	pool.connect((err,client,done) => {
-// 		if(err){
-// 			done();
-// 			console.log(err);
-// 		} else {
-// 			const queryString = "SELECT * FROM dhtindoor";
+app.get('/api/v1/indoor', (req,res,next) => {
+	 //let result = getIndoor();
+	//const results; 
+	pool.connect((err,client,done) => {
+		if(err){
+			done();
+			console.log(err);
+		} else {
+			const queryString = "SELECT * FROM dhtindoor";
 
-// 			client.query(queryString, (err,result) => {
-// 				if(err){
-// 					console.log(err);
-// 				} else {
-// 					//console.log(result.rows);
-// 					results.push(result.rows);
-// 				}
-// 				done();
+			client.query(queryString, (err,result) => {
+				if(err){
+					console.log(err);
+				} else {
+					//console.log(result.rows);
+					
+					 res.json(result);
+
+				}
+
+				done();
 		
-// 			});
-// 		}
-// 	});
-// 	 return res.json(results);
-// });
+			});
+		}
+	});
+});
+
+app.get('/api/v1/outdoor', (req , res) => {
+	pool.connect((err,client,done) => {
+		if(err){
+			console.log(err);
+			done();
+		}
+
+	     const getQuery = 'SELECT * FROM dhtoutdoor';
+	    client.query(getQuery, (err,result) => {
+	    	if(err){
+	    		console.log(err);
+	    	}else{
+	    		res.send(result);
+	    	}
+            done();
+	    })
+	});
+});
 
 
 /*=====  End of API Express  ======*/
@@ -311,6 +332,8 @@ parser.on('data' , (data) => {
 			//console.log(dataHasil);
 
 			io.sockets.emit('kirim' , {datahasil : dataHasil});
+			tempOut = dataHasil[10];
+			humidOut = dataHasil[9]; 
 		}
 
 		io.sockets.emit('button' , hidup);
