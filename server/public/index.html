@@ -81,9 +81,9 @@ Command Button :</h5>
                     <th>Stat.</th>
                     <th>Humid.</th>
                     <th>Temp.</th>
-                    <th>Air</th>
+                    <th>Carbon Monoxide</th>
                     <th>LPG</th>
-                    <th>Carbon</th>
+                    <th>Smoke</th>
                     
                 </tr>
             </thead>
@@ -92,9 +92,9 @@ Command Button :</h5>
                     <td id="rawdata">data</td>
                     <td id="humidity">data </td> 
                     <td id="temperature">data</td>
-                    <td id="moisture">data</td>
+                    <td id="smoke">data</td>
                     <td id="lpg">data</td>
-                    <td id="co">data</td>
+                    <td id="smoke2">data</td>
                 </tr>
             </tbody>
         </table>
@@ -103,16 +103,20 @@ Command Button :</h5>
                 <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Air Condition</th>
-                    <th>Smokes</th>
-                    <th>Motion</th>
+                    <th>Carbon Dioxide</th>
+                    <th>Rain</th>
+                    <th>Movement</th>
+                    <th>Lab Temperature</th>
+                    <th>Lab Humidity</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td id="air">data</td>
-                    <td id="anySmoke">data</td>
-                    <td id="motion">data</td>
+                    <td id="co">data</td>
+                    <td id="rain">data</td>
+                    <td id="pir">data</td>
+                    <td id="dht22_temperature">data</td>
+                    <td id="dht22_humidity">data</td>
                 </tr>
             </tbody>
         </table>
@@ -132,18 +136,15 @@ Graph</h5>
 
         </div>
         <div class="row">
-            <div class="col-md-4 watering">
-                <caption> Soil Status : </caption>
+            <div class="col-md-5 watering">
+                <caption> Rain Status : </caption>
                 <div class="progress">
                     <div id="maudisiram" class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
                         0 % Wet
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-            
-
-            </div>
+            <div id="zeroGraphDHT22" class="col-md-6" style="min-width: 330px; height: 400px; margin: 0 auto" ></div>
         </div>
 
         <div class="row">

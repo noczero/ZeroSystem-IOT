@@ -9,7 +9,9 @@ var humid = 0,
     pir = 0,
     co = 0,
     lpg = 0,
-    arahAngin = 0;
+    arahAngin = 0,
+    windvelo,lux,rain,smoke,smoke2,humidDHT = 0, humidNew = 0, tempNew = 0,
+    tempDHT = 0;
 
 var muncul = 0;
 var LEDhidup;
@@ -22,27 +24,31 @@ var box = Sprite3D.box( 421, 200, 5, "cube" ); //lebar tinggi panjang
 function update() {
     var socket = io.connect();
     socket.on('kirim', function(data) {
-
+        //console.log(data);
+        // header,humid,temp,smoke,LPG,CO,smoke(IN),motion,rain
         var Header = data.datahasil[0];
         humid = parseInt(data.datahasil[1]);
         temp = parseInt(data.datahasil[2]);
-        //moisture = parseInt(data.datahasil[3]);
-        
-        air = parseInt(data.datahasil[3]);
+        smoke = parseInt(data.datahasil[3]);
         lpg = parseInt(data.datahasil[4]);
         co = parseInt(data.datahasil[5]);
-        anySmoke = parseInt(data.datahasil[6]);
+        smoke2 = parseInt(data.datahasil[6]);
         pir = parseInt(data.datahasil[7]);
-        arahAngin = parseInt(data.datahasil[8]);
-        accX = parseInt(data.datahasil[8]);
-        accY = parseInt(data.datahasil[9]);
-        accZ = parseInt(data.datahasil[10]);
+        rain = parseInt(data.datahasil[8]);
+        humidNew = parseInt(data.datahasil[9]);
+        tempNew = parseInt(data.datahasil[10]);
+
+        // accX = parseInt(data.datahasil[8]);
+        // accY = parseInt(data.datahasil[9]);
+        // accZ = parseInt(data.datahasil[10]);
 
         box.rotation( accY, 360 - accX, accZ); //pitch yaw roll
         box.update();
         stage.appendChild(box);
         //Debug
-        console.log(data.datahasil);
+        //console.log(data.datahasil);
+        $("#co").html(co);
+        co = smoke;
         ISPU.setCO(co);
        	// console.log(ISPU.getCO());
         // console.log(ISPU.getCO());
@@ -53,24 +59,28 @@ function update() {
 
 
         $("#rawdata").html(Header);
-        $("#temperature").html(temp + '°C');
-        $("#humidity").html(humid + '%');
-        $("#moisture").html(moisture);
-        $("#accX").html(accX);
-        $("#accY").html(accY);
-        $("#accZ").html(accZ);
-        $("#air").html(air);
+        $("#temperature").html(tempNew + '°C');
+        $("#humidity").html(humidNew + '%');
+        //$("#press").html(press);
+        // $("#accX").html(accX);
+        // $("#accY").html(accY);
+        // $("#accZ").html(accZ);
+        $("#smoke").html(smoke);
+        $("#smoke2").html(smoke2);
         $("#lpg").html(lpg);
-        $("#co").html(co);
-        $("#anySmoke").html(anySmoke);
-        $("#motion").html(pir);
+        $("#arahAngin").html(arahAngin);
+        
+        $("#rain").html(rain);
+        $("#pir").html(pir);
+        //$("#humidNew").html(humidNew +'%');
+        //$("#tempNew").html(tempNew + '°C');
 
-        percentSiram = (moisture / 1023) * 100;
+        percentSiram = (rain / 1023) * 100;
         $("#maudisiram").css('width', percentSiram + '%').attr('aria-valuenow', percentSiram).html(parseInt(percentSiram) + " % Wet");
 
-        if (parseInt(percentSiram) > 19 && parseInt(percentSiram) < 20) {
+        if (parseInt(percentSiram) > 50 ) {
             muncul = 1;
-            $.notify("Need Water!, do watering....", "success");
+            $.notify("It's raining...");
         } else {
             muncul = 0;
         }
@@ -102,6 +112,16 @@ function update() {
         // console.log(data.humid);
         // console.log(data.waktu);
         //console.log(data);
+    });
+
+    socket.on('dataDHT22' ,  function(data) {
+       // tipe data JSON
+       // { 'temperature ' : 0 , 'humidity' : 0 } di parse kemudian dikirim sebagai object
+       //console.log(data.temperature); //panggil nilai
+       tempDHT = parseInt(data.temperature.toFixed(2));
+       humidDHT = parseInt(data.humidity.toFixed(2));
+      $('#dht22_temperature').html(data.temperature.toFixed(2) + ' °C');
+      $('#dht22_humidity').html(data.humidity.toFixed(2) + ' %'); 
     });
 
 }
@@ -187,7 +207,7 @@ function LedON() {
 }
 
 
-var chart;
+var chart,chartDHT22;
 $(document).ready(function() { 
     //time
     function clock() {
@@ -211,21 +231,35 @@ $(document).ready(function() {
                         var series = this.series[0];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = humid;
+                                y = humidNew;
                             series.addPoint([x, y], true, true);
                         }, 1000);
 
                           var series1 = this.series[1];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = temp;
+                                y = tempNew;
                             series1.addPoint([x, y], true, true);
                         }, 1000);
+
+                        // var series2 = this.series[2];
+                        // setInterval(function () {
+                        //     var x = (new Date()).getTime(), // current time
+                        //         y = tempNew;
+                        //     series2.addPoint([x, y], true, true);
+                        // }, 1000);
+
+                        //  var series3 = this.series[3];
+                        // setInterval(function () {
+                        //     var x = (new Date()).getTime(), // current time
+                        //         y = humidNew;
+                        //     series3.addPoint([x, y], true, true);
+                        // }, 1000);
                     }
             }
         },
         title: {
-            text: 'DHT11 Sensor'
+            text: 'Temperature & Humidity Outdoor (DHT11)'
         },
         xAxis: {
             type: 'datetime',
@@ -243,7 +277,7 @@ $(document).ready(function() {
             }
         },
         series: [{
-            name: 'Humidity',
+            name: 'Humidity New',
             data: (function () {
                     var data = [],
                         time = (new Date()).getTime(),
@@ -252,14 +286,14 @@ $(document).ready(function() {
                     for (i = -19; i <= 0; i += 1) {
                         data.push({
                             x: time + i * 1000,
-                            y: humid
+                            y: humidNew
                         });
                     }
                     return data;
                 }())
         },
         {
-            name: 'Temperature',
+            name: 'Temperature New',
             data: (function () {
                     // generate an array of random data
                     var data = [],
@@ -269,12 +303,46 @@ $(document).ready(function() {
                     for (i = -19; i <= 0; i += 1) {
                         data.push({
                             x: time + i * 1000,
-                            y: temp
+                            y: tempNew
                         });
                     }
                     return data;
                 }())
         }
+        // {
+        //     name: 'Temperature New',
+        //     data: (function () {
+        //             // generate an array of random data
+        //             var data = [],
+        //                 time = (new Date()).getTime(),
+        //                 i;
+
+        //             for (i = -19; i <= 0; i += 1) {
+        //                 data.push({
+        //                     x: time + i * 1000,
+        //                     y: tempNew
+        //                 });
+        //             }
+        //             return data;
+        //         }())
+        // },
+        // {
+        //     name: 'Humidity New',
+        //     data: (function () {
+        //             // generate an array of random data
+        //             var data = [],
+        //                 time = (new Date()).getTime(),
+        //                 i;
+
+        //             for (i = -19; i <= 0; i += 1) {
+        //                 data.push({
+        //                     x: time + i * 1000,
+        //                     y: humidNew
+        //                 });
+        //             }
+        //             return data;
+        //         }())
+        // }
 
         ]
     });
@@ -287,14 +355,14 @@ $(document).ready(function() {
                         var series = this.series[0];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = Math.floor(ISPU.getCO());
+                                y = Math.floor(co);
                             series.addPoint([x, y], true, true);
                         }, 1000);
                 }
             }
         },
         title: {
-            text: 'MQ-2 Sensor'
+            text: 'Carbon Monoxide'
         },
         xAxis: {
             type: 'datetime',
@@ -312,8 +380,8 @@ $(document).ready(function() {
             gridLineWidth: 0,
             alternateGridColor: null,
             plotBands: [{ // Light air
-                from: 0 ,
-                to: 50,
+                from: 400 ,
+                to: 450,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
                     text: 'Sangat Baik',
@@ -322,8 +390,8 @@ $(document).ready(function() {
                     }
                 }
             }, { // Light breeze
-                from: 50,
-                to: 100,
+                from: 450,
+                to: 500,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
                     text: 'Baik',
@@ -332,8 +400,8 @@ $(document).ready(function() {
                     }
                 }
             }, { // Gentle breeze
-                from: 100,
-                to: 200,
+                from: 500,
+                to: 700,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
                     text: 'Sedang',
@@ -342,8 +410,8 @@ $(document).ready(function() {
                     }
                 }
             }, { // Moderate breeze
-                from: 200,
-                to: 300,
+                from: 700,
+                to: 2000,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
                     text: 'Tidak Sehat',
@@ -352,8 +420,8 @@ $(document).ready(function() {
                     }
                 }
             }, { // Fresh breeze
-                from: 300,
-                to: 400,
+                from: 2000,
+                to: 3000,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
                     text: 'Sangat tidak sehat',
@@ -362,8 +430,8 @@ $(document).ready(function() {
                     }
                 }
             }, { // Strong breeze
-                from: 400,
-                to: 1000,
+                from: 3000,
+                to: 5000,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
                     text: 'Berbahaya',
@@ -413,7 +481,86 @@ $(document).ready(function() {
                 fontSize: '10px'
             }
         }
-    });        
+    });     
+
+    chartDHT22 = new Highcharts.Chart({
+        chart: {
+            renderTo: 'zeroGraphDHT22',
+            defaultSeriesType: 'spline',
+            events: {
+                load: function () {
+
+                        // set up the updating of the chart each second
+                        var series = this.series[0];
+                        setInterval(function () {
+                            var x = (new Date()).getTime(), // current time
+                                y = humidDHT;
+                            series.addPoint([x, y], true, true);
+                        }, 1000);
+
+                          var series1 = this.series[1];
+                        setInterval(function () {
+                            var x = (new Date()).getTime(), // current time
+                                y = tempDHT;
+                            series1.addPoint([x, y], true, true);
+                        }, 1000);
+                    }
+            }
+        },
+        title: {
+            text: 'Temperature & Humidity Indoor (DHT22)'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            crosshair : true,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+            crosshair : true,
+            title: {
+                text: 'Value',
+                margin: 5
+            }
+        },
+        series: [{
+            name: 'Humidity',
+            data: (function () {
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: humidDHT
+                        });
+                    }
+                    return data;
+                }())
+        },
+        {
+            name: 'Temperature',
+            data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: tempDHT
+                        });
+                    }
+                    return data;
+                }())
+        }
+
+        ]
+    });   
 
 
 });
