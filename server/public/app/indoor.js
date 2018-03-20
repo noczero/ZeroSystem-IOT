@@ -85,7 +85,7 @@ $(document).ready(function() {
         },
 
         title: {
-            text: 'Temperature Indorr over Time (DHT22)'
+            text: 'Temperature Indoor over Time (DHT22)'
         },
 
         series: [{
@@ -122,11 +122,11 @@ $(document).ready(function() {
         },
 
         title: {
-            text: 'Temperature Indorr over Time (DHT22)'
+            text: 'Humidity Indoor over Time (DHT22)'
         },
 
         series: [{
-            name: 'Degree',
+            name: 'Percents',
             data: result,
             tooltip: {
                 valueDecimals: 2

@@ -1,142 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard > ZeroSystem-IOT</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="css/custom.css">
-    <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="css/chart.css">
-
-    <script type="text/javascript" src="plugins/Sprite3D.js/Sprite3D.js"></script>
-
-
-</head>
-
-<body onload="update()">
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Dashboard > ZeroSystem-IOT</title>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="css/custom.css">
+        <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/chart.css">
+        <script type="text/javascript" src="plugins/Sprite3D.js/Sprite3D.js"></script>
+    </head>
+    <body onload="update()">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">ZeroSystem-IOT</a>
+                    </button>
+                    <a class="navbar-brand" href="#">ZeroSystem-IOT</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="/">Home</a></li>
+                        <li><a href="#about" data-toggle="modal" data-target="#about">About</a></li>
+                        <li ><a href="/indoor.html">Indoor</a></li>
+                        <li ><a href="/outdoor.html">Outdoor</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <div class="navbar-text" align="center">
+                            <span class="glyphicon glyphicon-time"></span>
+                            <small id="localtime"></small>
+                        </div>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
             </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="/">Home</a></li>
-                    <li><a href="#about" data-toggle="modal" data-target="#about">About</a></li>
-                    <li ><a href="/temp.html">Temperature</a></li>
-                    <li ><a href="/humid.html">Kelembaban</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <div class="navbar-text" align="center">
-                        <span class="glyphicon glyphicon-time"></span>
-                        <small id="localtime"></small>
-                    </div>
-                </ul>
+        </nav>
+        <div class="container">
+            <div id="watering">
             </div>
-            <!--/.nav-collapse -->
-        </div>
-    </nav>
-    <div class="container">
-        <div id="watering">
-        </div>
-        <div class="row">
-            <div class="col-xs-6 col-md-6">
-                <h5> <i class="fa fa-terminal fa-lg fa-fw" aria-hidden="true"></i>
-Command Button :</h5>
+            <div class="row">
+                <div class="col-xs-6 col-md-6">
+                    <h5> <i class="fa fa-terminal fa-lg fa-fw" aria-hidden="true"></i>
+                    Command Button :</h5>
+                </div>
+                <div class="text-right col-md-6 col-xs-6">
+                    <a onclick="startAgain()" class="btn btn-info">Start</a>
+                    <a onclick="stopSerial() " class="btn btn-primary"> Stop</a>
+                </div>
             </div>
-            <div class="text-right col-md-6 col-xs-6">
-                <a onclick="startAgain()" class="btn btn-info">Start</a>
-                <a onclick="stopSerial() " class="btn btn-primary"> Stop</a>
+            <div class="row">
+                <div class="col-md-6">
+                    <a id="LED" onclick="LedON() " class="btn btn-default"> LED OFF</a>
+                    <a  onclick="watering() " class="btn btn-default"> Watering </a>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <a id="LED" onclick="LedON() " class="btn btn-default"> LED OFF</a>
-                <a  onclick="watering() " class="btn btn-default"> Watering </a>
-            </div>
-        </div>
-        <div >
-            <small> Stats : 
+            <div >
+                <small> Stats :
                 <small id="stats">LED OFF</small>
                 <small id="statsWater">Watering OFF</small>
-            </small>    
-        </div>
-        <hr>
-        <h5> <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i> Parameter Data</h5>
-        <div class="row">
-            <div class="col-md-6">
-                <table class="table table-hover ">
+                </small>
+            </div>
+            <hr>
+            <h5> <i class="fa fa-circle-o-notch fa-spin fa-lg fa-fw"></i> Parameter Data</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-hover ">
+                        
+                        <thead>
+                            <tr>
+                                <th>Stat.</th>
+                                <th>Humid.</th>
+                                <th>Temp.</th>
+                                <th>Carbon Monoxide</th>
+                                <th>LPG</th>
+                                <th>Smoke</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="rawdata">data</td>
+                                <td id="humidity">data </td>
+                                <td id="temperature">data</td>
+                                <td id="co">data</td>
+                                <td id="lpg">data</td>
+                                <td id="smoke2">data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Carbon Dioxide</th>
+                                <th>Rain</th>
+                                <th>Movement</th>
+                                <th>Lab Temperature</th>
+                                <th>Lab Humidity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="CO2">data</td>
+                                <td id="rain">data</td>
+                                <td id="pir">data</td>
+                                <td id="dht22_temperature">data</td>
+                                <td id="dht22_humidity">data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             
-            <thead>
-                <tr>
-                    <th>Stat.</th>
-                    <th>Humid.</th>
-                    <th>Temp.</th>
-                    <th>Carbon Monoxide</th>
-                    <th>LPG</th>
-                    <th>Smoke</th>
-                    
-                </tr>
-            </thead>
-            <tbody> 
-                <tr>
-                    <td id="rawdata">data</td>
-                    <td id="humidity">data </td> 
-                    <td id="temperature">data</td>
-                    <td id="smoke">data</td>
-                    <td id="lpg">data</td>
-                    <td id="smoke2">data</td>
-                </tr>
-            </tbody>
-        </table>
+            
+            <hr>
+            <h5> <i class="fa fa-line-chart fa-lg fa-fw" aria-hidden="true"></i>
+            Graph</h5>
+            <br>
+            <div class="row">
+                <div id="zeroGraphCO2" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto; ">
+                </div>
+                
+                <div id="zeroGraph1" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto; ">
+                </div>
             </div>
-            <div class="col-md-6">
-                <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Carbon Dioxide</th>
-                    <th>Rain</th>
-                    <th>Movement</th>
-                    <th>Lab Temperature</th>
-                    <th>Lab Humidity</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="co">data</td>
-                    <td id="rain">data</td>
-                    <td id="pir">data</td>
-                    <td id="dht22_temperature">data</td>
-                    <td id="dht22_humidity">data</td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="row">
+                
+                <div id="zeroGraph" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto">
+                </div>
+                <div id="zeroGraphDHT22" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto" ></div>
             </div>
-        </div>
-        
-        
-        <hr>
-        <h5> <i class="fa fa-line-chart fa-lg fa-fw" aria-hidden="true"></i>
-Graph</h5>
-        <br>
-        <div class="row">
-            <div id="zeroGraph" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto">
-            </div>
-            <div id="zeroGraph1" class="col-md-6" style="min-width: 310px; height: 400px; margin: 0 auto; ">
-            </div>
-
-        </div>
-        <div class="row">
-            <div class="col-md-5 watering">
+            <div class="watering">
                 <caption> Rain Status : </caption>
                 <div class="progress">
                     <div id="maudisiram" class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
@@ -144,71 +144,67 @@ Graph</h5>
                     </div>
                 </div>
             </div>
-            <div id="zeroGraphDHT22" class="col-md-6" style="min-width: 330px; height: 400px; margin: 0 auto" ></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas  id="compass" class="gaugeCompass"></canvas>
+                </div>
+                
+                <div class="col-md-6">
+                    <div id="sikap" style=" margin-left: 250px; margin-top: 100px; margin-bottom: 200px; " align="center"></div>
+                </div>
+                
+            </div>
+            <br>
         </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <canvas  id="compass" class="gaugeCompass"></canvas>
-            </div>
-            
-            <div class="col-md-6">
-                <div id="sikap" style=" margin-left: 250px; margin-top: 100px; margin-bottom: 200px; " align="center"></div>
-            </div>
-            
-        </div>
-
-        <br>
-    </div>
-    <footer>
-        <div class="row">
-            <div class="col-md-4">
-                <span class="copyright">Copyright © Zero-Inside</span>
-            </div>
-            <div class="col-md-4">
-                <ul class="list-inline social-buttons">
-                    <li><a href="https://twitter.com/noczero"><i class="fa fa-twitter"></i></a>
+        <footer>
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="copyright">Copyright © Zero-Inside</span>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-inline social-buttons">
+                        <li><a href="https://twitter.com/noczero"><i class="fa fa-twitter"></i></a>
                     </li>
                     <li><a href="https://www.facebook.com/echo.satrya"><i class="fa fa-facebook"></i></a>
-                    </li>
-                    <li><a href="https://id.linkedin.com/in/satrya-budi-pratama-90050111b
-"><i class="fa fa-linkedin"></i></a>
-                    </li>
-                    <li><a href="https://github.com/noczero"><i class="fa fa-github"></i></a>
-                    </li>
-                    <li><a href="https://www.youtube.com/channel/UCqYDeVXqbDelMiG_LD2xq7w"><i class="fa fa-youtube"></i></a>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <span class="copyright"> Made with <span class="fa fa-heartbeat" style="color:#f66767"></span> in Bandung, Indonesia</span>
-            </div>
-        </div>
-    </footer>
-    <!-- Modal -->
-    <div id="about" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title" align="center">ZeroSystem-IOT</h4>
-                </div>
-                <div class="modal-body">
-                    <h5 align="center"><strong>Hello,</strong> Welcome to this monitoring website</h5>
-                    <br>
-                    <dl class="row">
-                        <dt class="col-sm-3">What is Zero System-IOT?</dt>
-                        <dd class="col-sm-9">It's an application that records the parameters of the sensor, which is used to monitor the condition of environment. </dd>
-                    </dl>
-                </div>
-                <div class="modal-footer">
-                    <small style="margin-right: 15px">Crafted by Satrya Budi Pratama</small>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                </li>
+                <li><a href="https://id.linkedin.com/in/satrya-budi-pratama-90050111b
+                "><i class="fa fa-linkedin"></i></a>
+            </li>
+            <li><a href="https://github.com/noczero"><i class="fa fa-github"></i></a>
+        </li>
+        <li><a href="https://www.youtube.com/channel/UCqYDeVXqbDelMiG_LD2xq7w"><i class="fa fa-youtube"></i></a>
+    </li>
+</ul>
+</div>
+<div class="col-md-4">
+<span class="copyright"> Made with <span class="fa fa-heartbeat" style="color:#f66767"></span> in Bandung, Indonesia</span>
+</div>
+</div>
+</footer>
+<!-- Modal -->
+<div id="about" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Modal content-->
+<div class="modal-content">
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h4 class="modal-title" align="center">ZeroSystem-IOT</h4>
+</div>
+<div class="modal-body">
+    <h5 align="center"><strong>Hello,</strong> Welcome to this monitoring website</h5>
+    <br>
+    <dl class="row">
+        <dt class="col-sm-3">What is Zero System-IOT?</dt>
+        <dd class="col-sm-9">It's an application that records the parameters of the sensor, which is used to monitor the condition of environment. </dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <small style="margin-right: 15px">Crafted by Satrya Budi Pratama</small>
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
 </body>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
@@ -217,12 +213,9 @@ Graph</h5>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="js/moment.js"></script>
 <script type="text/javascript" src="js/notify.js"></script>
-
 <script type="text/javascript" src="js/highcharts.js"></script>
 <script type="text/javascript" src="plugins/highcharts/code/js/themes/grid-light.js"></script>
 <script type="text/javascript" src="js/gauge.min.js"></script>
 <script type="text/javascript" src="app/compass.js"></script>
-
 <script type="text/javascript" src="app/sikap.js"></script>
-
 </html>

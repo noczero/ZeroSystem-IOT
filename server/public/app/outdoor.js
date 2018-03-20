@@ -34,7 +34,7 @@ function convertTimestamp(timestamp) {
 $(document).ready(function() {
    $('#example').DataTable( {
       "ajax": {
-         "url": "/api/v1/indoor",
+         "url": "/api/v1/outdoor",
          "dataSrc" : function(json) {
          	//console.log(json.rows);
          	return json.rows;
@@ -65,7 +65,7 @@ $(document).ready(function() {
         });
 
    	   //Get Temperature in JSON
-	   $.getJSON('/api/v1/indoor', function (data) {
+	   $.getJSON('/api/v1/outdoor', function (data) {
 	   			//console.log(data.rows[1]);
 				var result = [];
 
@@ -85,7 +85,7 @@ $(document).ready(function() {
         },
 
         title: {
-            text: 'Temperature Indorr over Time (DHT22)'
+            text: 'Temperature Outdoor over Time (DHT11)'
         },
 
         series: [{
@@ -102,7 +102,7 @@ $(document).ready(function() {
 
 
 	 //Get Humidity in JSON
-	 $.getJSON('/api/v1/indoor', function (data) {
+	 $.getJSON('/api/v1/outdoor', function (data) {
 	   			//console.log(data.rows[1]);
 				var result = [];
 
@@ -122,11 +122,11 @@ $(document).ready(function() {
         },
 
         title: {
-            text: 'Temperature Indorr over Time (DHT22)'
+            text: 'Humidity Outdoor over Time (DHT11)'
         },
 
         series: [{
-            name: 'Degree',
+            name: 'Percents',
             data: result,
             tooltip: {
                 valueDecimals: 2

@@ -102,6 +102,30 @@
 </div>
 </div>
 </footer>
+<!-- Modal -->
+    <div id="about" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" align="center">ZeroSystem-IOT</h4>
+                </div>
+                <div class="modal-body">
+                    <h5 align="center"><strong>Hello,</strong> Welcome to this monitoring website</h5>
+                    <br>
+                    <dl class="row">
+                        <dt class="col-sm-3">What is Zero System-IOT?</dt>
+                        <dd class="col-sm-9">It's an application that records the parameters of the sensor, which is used to monitor the condition of environment. </dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <small style="margin-right: 15px">Crafted by Satrya Budi Pratama</small>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
@@ -115,10 +139,10 @@
 <!-- DAta Tables -->
 <script type="text/javascript" src="plugins/DataTables/js/jquery.dataTables.min.js"></script>
 <!-- add instrument -->
-<script type="text/javascript" src="app/flightinstrument.js"></script>
-<!-- <script type="text/javascript" src="plugins/instrument/js/jquery.flightindicator.js"></script>
+<!-- <script type="text/javascript" src="app/flightinstrument.js"></script>
+ --><!-- <script type="text/javascript" src="plugins/instrument/js/jquery.flightindicator.js"></script>
 -->
-<script type="text/javascript" src="app/temperature.js"></script>
+<script type="text/javascript" src="app/indoor.js"></script>
 <script>
 function clock() {
 document.getElementById("localtime").innerHTML = moment().format('MMMM Do YYYY, h:mm:ss a');
