@@ -102,51 +102,6 @@ function insertOutdoor(){
 		}
 	});
 } 
-let co2;
-function insertCo2(co2){ 
-	pool.connect((err,client,done) => {
-		if(err){
-			done();
-			console.log(err);
-		}
-		if (co2 != undefined) {
-			const queryString = "INSERT INTO carbondioxide (co2) VALUES (" + co2 + ")";
-			
-			client.query(queryString , (err,result) => {
-				if(err)
-					console.log(err)
-				else
-					console.log('insert co2 success...');
-
-				done();
-
-			});
-		}
-	});
-} 
-
-let rainValue;
-function insertRainValue(rainVal){ 
-	pool.connect((err,client,done) => {
-		if(err){
-			done();
-			console.log(err);
-		}
-		if (rainVal != undefined) {
-			const queryString = "INSERT INTO rain (value) VALUES (" + rainVal + ")";
-			
-			client.query(queryString , (err,result) => {
-				if(err)
-					console.log(err)
-				else
-					console.log('insert rain status success...');
-
-				done();
-
-			});
-		}
-	});
-} 
 
 function getIndoor(){
 	const results = []; 
@@ -295,7 +250,19 @@ const insertDB = new cron({
 	start : false,
 	timeZone : 'Asia/Jakarta'
 });
-
+port.write('1' , (err) => {
+                        if (err)
+                                return console.log('Error on write : ' , err.message);
+                        console.log('Connected... ');
+                });port.write('1' , (err) => {
+                        if (err)
+                                return console.log('Error on write : ' , err.message);
+                        console.log('Connected... ');
+                });port.write('1' , (err) => {
+                        if (err)
+                                return console.log('Error on write : ' , err.message);
+                        console.log('Connected... ');
+                });
 
 
 /*----------  Main   ----------*/
@@ -322,7 +289,6 @@ port.on('open' , () => {
 /*==================================
 =            Socket.io             =
 ==================================*/
-let tempOut, humidOut;
 let countConnected = 0 , dcClient = 0;
 io.on('connection', (socket) => {
 	countConnected++;
@@ -370,21 +336,19 @@ io.on('connection', (socket) => {
 	});
 });
 
-
+let tempOut, humidOut;
 parser.on('data' , (data) => {
 		let RAWData, dataHasil;
 		RAWData = data.toString();
 		RAWData = RAWData.replace(/(\r\n|\n|\r)/gm, '');
 		dataHasil = RAWData.split(',');
-		//console.log(dataHasil);
+
 		if (dataHasil[0] == "OK" ) {
 			//console.log(dataHasil);
 
 			io.sockets.emit('kirim' , {datahasil : dataHasil});
-			co2 = dataHasil[11];
 			tempOut = dataHasil[10];
 			humidOut = dataHasil[9]; 
-			rainValue = dataHasil[8];
 		}
 
 		io.sockets.emit('button' , hidup);
@@ -462,27 +426,11 @@ function mqtt_close(){
 setInterval( () => {
 	//insertIndoor();
 	insertOutdoor();
-	insertCo2(co2Correction(co2,467.11,tempOut));
-	insertRainValue(rainValue);
 },1000*60*10); //every 10 menit
 
 
 /*=====  End of Interval  ======*/
 
-/**
- * Source :
- * http://www.vaisala.com/Vaisala%20Documents/Application%20notes/CEN-TIA-Parameter-How-to-measure-CO2-Application-note-B211228EN-A.pdf
- * where ppm is Co2 , hpa is pressure , and tmp is temperature
- */
-
-function co2Correction(ppm , hpa , temp) {
-  ppm = parseInt(ppm);
-  //hpa = parseInt(hpa);
-  hpa = 467.11;
-  temp = parseInt(temp);
-
-  return ((ppm * (hpa / 1013) * (298/(273 + temp))) + 55).toFixed(2);
-}
 
 
 

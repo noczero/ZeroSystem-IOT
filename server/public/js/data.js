@@ -7,6 +7,7 @@ var humid = 0,
     accZ = 0,
     air = 0,
     pir = 0,
+    CO2 = 0,
     co = 0,
     lpg = 0,
     arahAngin = 0,
@@ -25,18 +26,19 @@ function update() {
     var socket = io.connect();
     socket.on('kirim', function(data) {
         //console.log(data);
-        // header,humid,temp,smoke,LPG,CO,smoke(IN),motion,rain
+        // header,humid,temp,smoke,LPG,CO2,smoke(IN),motion,rain
+        console.log(data);
         var Header = data.datahasil[0];
         humid = parseInt(data.datahasil[1]);
         temp = parseInt(data.datahasil[2]);
-        smoke = parseInt(data.datahasil[3]);
-        lpg = parseInt(data.datahasil[4]);
-        co = parseInt(data.datahasil[5]);
+        co = parseInt(data.datahasil[4]);
+        lpg = parseInt(data.datahasil[5]);
         smoke2 = parseInt(data.datahasil[6]);
         pir = parseInt(data.datahasil[7]);
         rain = parseInt(data.datahasil[8]);
         humidNew = parseInt(data.datahasil[9]);
         tempNew = parseInt(data.datahasil[10]);
+        CO2 = co2Correction(data.datahasil[11],467.11,tempNew); // from sensor sensirion
 
         // accX = parseInt(data.datahasil[8]);
         // accY = parseInt(data.datahasil[9]);
@@ -47,12 +49,12 @@ function update() {
         stage.appendChild(box);
         //Debug
         //console.log(data.datahasil);
-        $("#co").html(co);
-        co = smoke;
+        $("#CO2").html(CO2);
+        //CO2 = smoke;
         ISPU.setCO(co);
        	// console.log(ISPU.getCO());
         // console.log(ISPU.getCO());
-        // console.log(ISPU.Xa.CO[2]);
+        // console.log(ISPU.Xa.CO2[2]);
         // console.log(ISPU.Ia[0]);
         // console.log(rumusISPU(322,100,50,365,80));
         // console.log(rumusISPU(10,100,50,10,5));
@@ -65,7 +67,7 @@ function update() {
         // $("#accX").html(accX);
         // $("#accY").html(accY);
         // $("#accZ").html(accZ);
-        $("#smoke").html(smoke);
+        $("#co").html(co);
         $("#smoke2").html(smoke2);
         $("#lpg").html(lpg);
         $("#arahAngin").html(arahAngin);
@@ -136,6 +138,21 @@ var dataSensor = {
         return this.humid;
     }
 };
+
+/**
+ * Source :
+ * http://www.vaisala.com/Vaisala%20Documents/Application%20notes/CEN-TIA-Parameter-How-to-measure-CO2-Application-note-B211228EN-A.pdf
+ * where ppm is Co2 , hpa is pressure , and tmp is temperature
+ */
+
+function co2Correction(ppm , hpa , temp) {
+  ppm = parseInt(ppm);
+  //hpa = parseInt(hpa);
+  hpa = 467.11;
+  temp = parseInt(temp);
+
+  return ((ppm * (hpa / 1013) * (298/(273 + temp))) + 55).toFixed(2);
+}
 
 var paramSensor = dataSensor;
 
@@ -355,7 +372,7 @@ $(document).ready(function() {
                         var series = this.series[0];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = Math.floor(co);
+                                y = Math.floor(ISPU.getCO());
                             series.addPoint([x, y], true, true);
                         }, 1000);
                 }
@@ -373,73 +390,56 @@ $(document).ready(function() {
         },
         yAxis: {
             title: {
-                text: 'ISPU (Indeks Pencemaran Udara)'
+                text: 'CO (Carbon Monoxide) level'
+                //https://www.kane.co.uk/knowledge-centre/what-are-safe-levels-of-co-and-co2-in-rooms
             },
              crosshair : true,
             minorGridLineWidth: 0,
             gridLineWidth: 0,
             alternateGridColor: null,
+
             plotBands: [{ // Light air
                 from: 400 ,
                 to: 450,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
-                    text: 'Sangat Baik',
+                    text: 'CO Max prolonged exposure (ASHRAE standard)', 
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Light breeze
-                from: 450,
-                to: 500,
+                from: 9,
+                to: 35,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
-                    text: 'Baik',
+                    text: 'CO Max exposure for 8 hour work day (OSHA)',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Gentle breeze
-                from: 500,
-                to: 700,
+                from: 35,
+                to: 800,
                 color: 'rgba(68, 170, 213, 0.1)',
                 label: {
-                    text: 'Sedang',
+                    text: 'CO Death within 2 to 3 hours',
                     style: {
                         color: '#606060'
                     }
                 }
             }, { // Moderate breeze
-                from: 700,
-                to: 2000,
+                from: 800,
+                to: 12800,
                 color: 'rgba(0, 0, 0, 0)',
                 label: {
-                    text: 'Tidak Sehat',
+                    text: 'CO Death within 1 to 3 minutes',
                     style: {
                         color: '#606060'
                     }
                 }
-            }, { // Fresh breeze
-                from: 2000,
-                to: 3000,
-                color: 'rgba(68, 170, 213, 0.1)',
-                label: {
-                    text: 'Sangat tidak sehat',
-                    style: {
-                        color: '#606060'
-                    }
-                }
-            }, { // Strong breeze
-                from: 3000,
-                to: 5000,
-                color: 'rgba(0, 0, 0, 0)',
-                label: {
-                    text: 'Berbahaya',
-                    style: {
-                        color: '#606060'
-                    }
-                }
-            }]
+            }
+            ]
         },
         tooltip: {
             valueSuffix: ' Indeks'
@@ -561,6 +561,133 @@ $(document).ready(function() {
 
         ]
     });   
+
+    //CO2
+     Highcharts.chart('zeroGraphCO2', {
+        chart: {
+            type: 'spline',
+            events : {
+                load : function() {
+                        var series = this.series[0];
+                        setInterval(function () {
+                            var x = (new Date()).getTime(), // current time
+                                y = parseInt(CO2);
+                            series.addPoint([x, y], true, true);
+                        }, 1000);
+                }
+            }
+        },
+        title: {
+            text: 'Carbon Dioxide'
+        },
+        xAxis: {
+            type: 'datetime',
+             crosshair : true,
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'CO (Carbon Dioxide) Level'
+            },
+             crosshair : true,
+            minorGridLineWidth: 0,
+            gridLineWidth: 0,
+            alternateGridColor: null,
+            plotBands: [{ // Light air
+                from: 250 ,
+                to: 350,
+                color: 'rgba(68, 170, 213, 0.1)',
+                label: {
+                    text: 'Normal',
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }, { // Light breeze
+                from: 350,
+                to: 1000,
+                color: 'rgba(0, 0, 0, 0)',
+                label: {
+                    text: 'Concentrations typical of occupied indoor spaces with good air exchange',
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }, { // Gentle breeze
+                from: 1000,
+                to: 2000,
+                color: 'rgba(68, 170, 213, 0.1)',
+                label: {
+                    text: 'Complaints of drowsiness and poor air.',
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }, { // Moderate breeze
+                from: 2000,
+                to: 5000,
+                color: 'rgba(0, 0, 0, 0)',
+                label: {
+                    text: 'Headaches, sleepiness and stagnant, stale, stuffy air. Poor concentration, loss of attention, increased heart rate and slight nausea may also be present',
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            },  { // Strong breeze
+                from: 5000,
+                to: 40000,
+                color: 'rgba(0, 0, 0, 0)',
+                label: {
+                    text: 'Workplace exposure limit (as 8-hour TWA) in most jurisdictions',
+                    style: {
+                        color: '#606060'
+                    }
+                }
+            }]
+        },
+        tooltip: {
+            valueSuffix: ' ppm'
+        },
+        plotOptions: {
+            spline: {
+                lineWidth: 4,
+                states: {
+                    hover: {
+                        lineWidth: 5
+                    }
+                },
+                marker: {
+                    enabled: false
+                }
+
+            }
+        },
+        series: [{
+            name: 'Carbon Dioxide',
+            data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: parseInt(CO2)
+                        });
+                    }
+                    return data;
+                }())
+
+        }],
+        navigation: {
+            menuItemStyle: {
+                fontSize: '10px'
+            }
+        }
+    });     
 
 
 });
