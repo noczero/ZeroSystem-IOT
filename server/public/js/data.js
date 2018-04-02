@@ -11,7 +11,7 @@ var humid = 0,
     co = 0,
     lpg = 0,
     arahAngin = 0,
-    windvelo,lux,rain,smoke,smoke2,humidDHT = 0, humidNew = 0, tempNew = 0,
+    windvelo,lux,rain,smoke,smoke2,humidDHT = 0, humidNew = 0, tempNew = 0, LDR = 0,
     tempDHT = 0;
 
 var muncul = 0;
@@ -27,19 +27,33 @@ function update() {
     socket.on('kirim', function(data) {
         //console.log(data);
         // header,humid,temp,smoke,LPG,CO2,smoke(IN),motion,rain
+        //OK,44,0,0,0,0,1,32,55,456.25,0
+            /*
+            [0] = HEADER
+            [1] = RAW GAS
+            [2] = LPG
+            [3] = CO
+            [4] = SMOKE
+            [5] = MOTION
+            [6] = RAINDROP
+            [7] = TEMP
+            [8] = HUMID
+            [9] = CO2
+            [10] = LDR 
+            */
         console.log(data);
         var Header = data.datahasil[0];
-        humid = parseInt(data.datahasil[1]);
-        temp = parseInt(data.datahasil[2]);
-        co = parseInt(data.datahasil[4]);
-        lpg = parseInt(data.datahasil[5]);
-        smoke2 = parseInt(data.datahasil[6]);
-        pir = parseInt(data.datahasil[7]);
-        rain = parseInt(data.datahasil[8]);
-        humidNew = parseInt(data.datahasil[9]);
-        tempNew = parseInt(data.datahasil[10]);
-        CO2 = co2Correction(data.datahasil[11],467.11,tempNew); // from sensor sensirion
-
+        humid = 0;
+        temp =0;
+        co = parseInt(data.datahasil[3]);
+        lpg = parseInt(data.datahasil[2]);
+        smoke2 = parseInt(data.datahasil[4]);
+        pir = parseInt(data.datahasil[5]);
+        rain = parseInt(data.datahasil[6]);
+        tempNew = parseInt(data.datahasil[7]);
+        humidNew = parseInt(data.datahasil[8]);
+        CO2 = co2Correction(data.datahasil[9],467.11,tempNew); // from sensor sensirion
+        LDR = parseInt(data.datahasil[10]);
         // accX = parseInt(data.datahasil[8]);
         // accY = parseInt(data.datahasil[9]);
         // accZ = parseInt(data.datahasil[10]);
@@ -74,6 +88,7 @@ function update() {
         
         $("#rain").html(rain);
         $("#pir").html(pir);
+        $("#LDR").html(LDR);
         //$("#humidNew").html(humidNew +'%');
         //$("#tempNew").html(tempNew + '°C');
 

@@ -370,7 +370,7 @@ io.on('connection', (socket) => {
 	});
 });
 
-
+let statusLDR = false;
 parser.on('data' , (data) => {
 		let RAWData, dataHasil;
 		RAWData = data.toString();
@@ -379,12 +379,50 @@ parser.on('data' , (data) => {
 		//console.log(dataHasil);
 		if (dataHasil[0] == "OK" ) {
 			//console.log(dataHasil);
-
+			//OK,44,0,0,0,0,1,32,55,456.25,0
+			/*
+			[0] = HEADER
+			[1] = RAW GAS
+			[2] = LPG
+			[3] = CO
+			[4] = SMOKE
+			[5] = MOTION
+			[6] = RAINDROP
+			[7] = TEMP
+			[8] = HUMID
+			[9] = CO2
+			[10] = LDR 
+			*/
 			io.sockets.emit('kirim' , {datahasil : dataHasil});
-			co2 = dataHasil[11];
-			tempOut = dataHasil[10];
-			humidOut = dataHasil[9]; 
-			rainValue = dataHasil[8];
+			co2 = dataHasil[9];
+			tempOut = dataHasil[7];
+			humidOut = dataHasil[8]; 
+			rainValue = dataHasil[6];
+			if (dataHasil[10] == '1' && statusLDR == false && hidup == false){
+				statusLDR = true;
+				// call the turn off LED
+				setTimeout(()=>{
+					port.write('2', (err) => {
+						if(err)
+							console.log(err.message);
+						else 
+							hidup = true;
+					});
+				},3000);
+				console.log("LDR " + statusLDR + "Turn ON LED" + dataHasil[10])
+			} else if(dataHasil[10] == '0' && statusLDR == true && hidup == true) {
+				// call the turn off LED
+				statusLDR = false;
+				setTimeout(()=> {
+					port.write('3', (err) => {
+						if(err)
+							console.log(err.message);
+						else 
+							hidup = false;
+					});
+				},3000);
+				console.log("LDR " + statusLDR + "Turn OFF LED" + dataHasil[10])
+			}
 		}
 
 		io.sockets.emit('button' , hidup);
